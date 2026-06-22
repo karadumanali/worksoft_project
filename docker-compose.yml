@@ -1,0 +1,72 @@
+services:
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: worksoft_mssql
+    environment:
+      SA_PASSWORD: ${MSSQL_SA_PASSWORD}
+      ACCEPT_EULA: "Y"
+      MSSQL_PID: ${MSSQL_PID}
+    ports:
+      - "1433:1433"
+    volumes:
+      - mssql_data:/var/opt/mssql
+    networks:
+      - worksoft_network
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: worksoft_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - worksoft_network
+    restart: unless-stopped
+
+  api:
+    build:
+      context: ./src/backend
+      dockerfile: Dockerfile
+    container_name: worksoft_api
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
+      ASPNETCORE_URLS: ${ASPNETCORE_URLS}
+      CONNECTION_STRING: ${CONNECTION_STRING}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+      JWT_ISSUER: ${JWT_ISSUER}
+      JWT_AUDIENCE: ${JWT_AUDIENCE}
+      JWT_EXPIRE_MINUTES: ${JWT_EXPIRE_MINUTES}
+      REDIS_CONNECTION_STRING: ${REDIS_CONNECTION_STRING}
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mssql
+      - redis
+    networks:
+      - worksoft_network
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./src/frontend
+      dockerfile: Dockerfile
+    container_name: worksoft_frontend
+    environment:
+      VITE_API_BASE_URL: ${VITE_API_BASE_URL}
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+    networks:
+      - worksoft_network
+    restart: unless-stopped
+
+volumes:
+  mssql_data:
+  redis_data:
+
+networks:
+  worksoft_network:
+    driver: bridge
