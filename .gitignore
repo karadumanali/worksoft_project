@@ -162,3 +162,8 @@ temp/
 k8s/secrets/
 *-secret.yaml
 *-secret.yml
+
+
+
+src/backend/HashGenerator/
+src/backend/seed.sql
