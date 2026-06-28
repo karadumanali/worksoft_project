@@ -1,72 +1,60 @@
+version: '3.8'
+
 services:
   mssql:
     image: mcr.microsoft.com/mssql/server:2022-latest
-    container_name: worksoft_mssql
     environment:
-      SA_PASSWORD: ${MSSQL_SA_PASSWORD}
+      SA_PASSWORD: "Worksoft1234*"
       ACCEPT_EULA: "Y"
-      MSSQL_PID: ${MSSQL_PID}
     ports:
       - "1433:1433"
     volumes:
       - mssql_data:/var/opt/mssql
     networks:
-      - worksoft_network
-    restart: unless-stopped
+      - worksoft-network
 
   redis:
     image: redis:7-alpine
-    container_name: worksoft_redis
     ports:
       - "6379:6379"
-    volumes:
-      - redis_data:/data
     networks:
-      - worksoft_network
-    restart: unless-stopped
+      - worksoft-network
 
   api:
     build:
       context: ./src/backend
-      dockerfile: Dockerfile
-    container_name: worksoft_api
-    environment:
-      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
-      ASPNETCORE_URLS: ${ASPNETCORE_URLS}
-      CONNECTION_STRING: ${CONNECTION_STRING}
-      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
-      JWT_ISSUER: ${JWT_ISSUER}
-      JWT_AUDIENCE: ${JWT_AUDIENCE}
-      JWT_EXPIRE_MINUTES: ${JWT_EXPIRE_MINUTES}
-      REDIS_CONNECTION_STRING: ${REDIS_CONNECTION_STRING}
+      dockerfile: WorksoftTaskTracker.API/Dockerfile
     ports:
-      - "8080:8080"
+      - "5000:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=mssql,1433;Database=WorksoftTaskTracker;User Id=sa;Password=Worksoft1234*;TrustServerCertificate=True;
+      - Redis__ConnectionString=redis:6379
+      - Redis__InstanceName=WorksoftCache
+      - Jwt__SecretKey=worksoft-super-secret-jwt-key-minimum-32-chars
+      - Jwt__Issuer=WorksoftTaskTracker
+      - Jwt__Audience=WorksoftTaskTrackerClient
+      - Jwt__ExpireMinutes=60
     depends_on:
       - mssql
       - redis
     networks:
-      - worksoft_network
-    restart: unless-stopped
+      - worksoft-network
 
   frontend:
     build:
       context: ./src/frontend
       dockerfile: Dockerfile
-    container_name: worksoft_frontend
-    environment:
-      VITE_API_BASE_URL: ${VITE_API_BASE_URL}
     ports:
-      - "3000:3000"
+      - "3000:80"
     depends_on:
       - api
     networks:
-      - worksoft_network
-    restart: unless-stopped
+      - worksoft-network
+
+networks:
+  worksoft-network:
+    driver: bridge
 
 volumes:
   mssql_data:
-  redis_data:
-
-networks:
-  worksoft_network:
-    driver: bridge
