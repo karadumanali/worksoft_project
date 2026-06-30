@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
 import axiosInstance from "../api/axiosInstance";
 import CreateUserModal from "../components/CreateUserModal";
+import EditUserModal from "../components/EditUserModal";
 
 function Users() {
   const [users, setUsers] = useState([]);
   const [error, setError] = useState("");
   const [showModal, setShowModal] = useState(false);
+  const [editingUser, setEditingUser] = useState(null);
 
   useEffect(() => {
     fetchUsers();
@@ -42,6 +44,7 @@ function Users() {
             <th style={{ border: "1px solid #ccc", padding: "8px" }}>Rolü</th>
             <th style={{ border: "1px solid #ccc", padding: "8px" }}>Kayıt Tarihi</th>
             <th style={{ border: "1px solid #ccc", padding: "8px" }}>Hesap Durumu</th>
+            <th style={{ border: "1px solid #ccc", padding: "8px" }}>İşlemler</th>
           </tr>
         </thead>
         <tbody>
@@ -59,6 +62,9 @@ function Users() {
               <td style={{ border: "1px solid #ccc", padding: "8px" }}>
                 {u.isActive ? "Aktif" : "Pasif"}
               </td>
+              <td style={{ border: "1px solid #ccc", padding: "8px" }}>
+                <button onClick={() => setEditingUser(u)}>Düzenle</button>
+              </td>
             </tr>
           ))}
         </tbody>
@@ -67,6 +73,14 @@ function Users() {
         <CreateUserModal
           onClose={() => setShowModal(false)}
           onCreated={fetchUsers}
+        />
+      )}
+
+      {editingUser && (
+        <EditUserModal
+          targetUser={editingUser}
+          onClose={() => setEditingUser(null)}
+          onUpdated={fetchUsers}
         />
       )}
     </div>
