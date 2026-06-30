@@ -2,12 +2,14 @@ import { useState, useEffect } from "react";
 import axiosInstance from "../api/axiosInstance";
 import { useAuth } from "../context/AuthContext";
 import CreateTaskModal from "../components/CreateTaskModal";
+import EditTaskModal from "../components/EditTaskModal";
 
 function Tasks() {
   const [tasks, setTasks] = useState([]);
   const [error, setError] = useState("");
   const { user } = useAuth();
   const [showModal, setShowModal] = useState(false);
+  const [editingTask, setEditingTask] = useState(null);
 
   const isPersonel = user.role === "Personel";
 
@@ -61,6 +63,7 @@ function Tasks() {
             <th style={{ border: "1px solid #ccc", padding: "8px" }}>Öncelik</th>
             <th style={{ border: "1px solid #ccc", padding: "8px" }}>Bitiş Tarihi</th>
             <th style={{ border: "1px solid #ccc", padding: "8px" }}>Durum</th>
+            <th style={{ border: "1px solid #ccc", padding: "8px" }}>İşlemler</th>
           </tr>
         </thead>
         <tbody>
@@ -82,6 +85,11 @@ function Tasks() {
                   <option value="Tamamlandı">Tamamlandı</option>
                 </select>
               </td>
+              <td style={{ border: "1px solid #ccc", padding: "8px" }}>
+              {!isPersonel && (
+                <button onClick={() => setEditingTask(task)}>Düzenle</button>
+              )}
+            </td>
             </tr>
           ))}
         </tbody>
@@ -91,6 +99,14 @@ function Tasks() {
             onClose={() => setShowModal(false)}
             onCreated={fetchTasks}
         />
+        )}
+
+        {editingTask && (
+          <EditTaskModal
+            task={editingTask}
+            onClose={() => setEditingTask(null)}
+            onUpdated={fetchTasks}
+          />
         )}
     </div>
   );
