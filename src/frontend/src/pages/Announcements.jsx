@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
 import axiosInstance from "../api/axiosInstance";
 import { useAuth } from "../context/AuthContext";
+import CreateAnnouncementModal from "../components/CreateAnnouncementModal";
 
 function Announcements() {
   const [announcements, setAnnouncements] = useState([]);
   const [error, setError] = useState("");
   const { user } = useAuth();
+  const [showModal, setShowModal] = useState(false);
 
   const isAdmin = user.role === "Admin";
 
@@ -34,7 +36,9 @@ function Announcements() {
         }}
       >
         <h2>Duyuru Yönetimi</h2>
-        {isAdmin && <button>+ Yeni Duyuru Yayınla</button>}
+        {isAdmin && (
+        <button onClick={() => setShowModal(true)}>+ Yeni Duyuru Yayınla</button>
+        )}
       </div>
 
       <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "20px" }}>
@@ -63,6 +67,12 @@ function Announcements() {
           ))}
         </tbody>
       </table>
+      {showModal && (
+        <CreateAnnouncementModal
+            onClose={() => setShowModal(false)}
+            onCreated={fetchAnnouncements}
+        />
+        )}
     </div>
   );
 }
