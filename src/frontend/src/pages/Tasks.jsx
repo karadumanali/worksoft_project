@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
 import axiosInstance from "../api/axiosInstance";
 import { useAuth } from "../context/AuthContext";
+import CreateTaskModal from "../components/CreateTaskModal";
 
 function Tasks() {
   const [tasks, setTasks] = useState([]);
   const [error, setError] = useState("");
   const { user } = useAuth();
+  const [showModal, setShowModal] = useState(false);
 
   const isPersonel = user.role === "Personel";
 
@@ -46,7 +48,9 @@ function Tasks() {
         }}
       >
         <h2>Görev Yönetimi</h2>
-        {!isPersonel && <button>+ Yeni Görev Oluştur</button>}
+        {!isPersonel && (
+        <button onClick={() => setShowModal(true)}>+ Yeni Görev Oluştur</button>
+        )}
       </div>
 
       <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "20px" }}>
@@ -82,6 +86,12 @@ function Tasks() {
           ))}
         </tbody>
       </table>
+      {showModal && (
+        <CreateTaskModal
+            onClose={() => setShowModal(false)}
+            onCreated={fetchTasks}
+        />
+        )}
     </div>
   );
 }
