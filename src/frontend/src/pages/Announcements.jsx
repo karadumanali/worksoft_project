@@ -3,6 +3,7 @@ import axiosInstance from "../api/axiosInstance";
 import { useAuth } from "../context/AuthContext";
 import CreateAnnouncementModal from "../components/CreateAnnouncementModal";
 import EditAnnouncementModal from "../components/EditAnnouncementModal";
+import ConfirmDialog from "../components/ConfirmDialog";
 
 function Announcements() {
   const [announcements, setAnnouncements] = useState([]);
@@ -10,6 +11,7 @@ function Announcements() {
   const { user } = useAuth();
   const [showModal, setShowModal] = useState(false);
   const [editingAnnouncement, setEditingAnnouncement] = useState(null);
+  const [deletingAnnouncement, setDeletingAnnouncement] = useState(null);
 
   const isAdmin = user.role === "Admin";
 
@@ -68,7 +70,10 @@ function Announcements() {
               </td>
               <td style={{ border: "1px solid #ccc", padding: "8px" }}>
                 {isAdmin && (
-                  <button onClick={() => setEditingAnnouncement(a)}>Düzenle</button>
+                  <>
+                    <button onClick={() => setEditingAnnouncement(a)}>Düzenle</button>
+                    <button onClick={() => setDeletingAnnouncement(a)}>Sil</button>
+                  </>
                 )}
               </td>
             </tr>
@@ -87,6 +92,22 @@ function Announcements() {
             announcement={editingAnnouncement}
             onClose={() => setEditingAnnouncement(null)}
             onUpdated={fetchAnnouncements}
+          />
+        )}
+
+        {deletingAnnouncement && (
+          <ConfirmDialog
+            message={`"${deletingAnnouncement.title}" başlıklı duyuruyu silmek istediğinize emin misiniz?`}
+            onConfirm={async () => {
+              try {
+                await axiosInstance.delete(`/announcements/${deletingAnnouncement.id}`);
+                fetchAnnouncements();
+              } catch (err) {
+                setError("Duyuru silinemedi.");
+              }
+              setDeletingAnnouncement(null);
+            }}
+            onCancel={() => setDeletingAnnouncement(null)}
           />
         )}
     </div>
