@@ -3,6 +3,7 @@ import axiosInstance from "../api/axiosInstance";
 import { useAuth } from "../context/AuthContext";
 import CreateTaskModal from "../components/CreateTaskModal";
 import EditTaskModal from "../components/EditTaskModal";
+import ConfirmDialog from "../components/ConfirmDialog";
 
 function Tasks() {
   const [tasks, setTasks] = useState([]);
@@ -10,6 +11,7 @@ function Tasks() {
   const { user } = useAuth();
   const [showModal, setShowModal] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
+  const [deletingTask, setDeletingTask] = useState(null);
 
   const isPersonel = user.role === "Personel";
 
@@ -86,10 +88,13 @@ function Tasks() {
                 </select>
               </td>
               <td style={{ border: "1px solid #ccc", padding: "8px" }}>
-              {!isPersonel && (
-                <button onClick={() => setEditingTask(task)}>Düzenle</button>
-              )}
-            </td>
+                {!isPersonel && (
+                  <>
+                    <button onClick={() => setEditingTask(task)}>Düzenle</button>
+                    <button onClick={() => setDeletingTask(task)}>Sil</button>
+                  </>
+                )}
+              </td>
             </tr>
           ))}
         </tbody>
@@ -106,6 +111,22 @@ function Tasks() {
             task={editingTask}
             onClose={() => setEditingTask(null)}
             onUpdated={fetchTasks}
+          />
+        )}
+
+        {deletingTask && (
+          <ConfirmDialog
+            message={`"${deletingTask.title}" adlı görevi "${deletingTask.assignedUserName}" kişisinden silmek istediğinize emin misiniz?`}
+            onConfirm={async () => {
+              try {
+                await axiosInstance.delete(`/tasks/${deletingTask.id}`);
+                fetchTasks();
+              } catch (err) {
+                setError("Görev silinemedi.");
+              }
+              setDeletingTask(null);
+            }}
+            onCancel={() => setDeletingTask(null)}
           />
         )}
     </div>
