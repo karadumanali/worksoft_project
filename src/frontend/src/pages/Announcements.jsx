@@ -2,12 +2,14 @@ import { useState, useEffect } from "react";
 import axiosInstance from "../api/axiosInstance";
 import { useAuth } from "../context/AuthContext";
 import CreateAnnouncementModal from "../components/CreateAnnouncementModal";
+import EditAnnouncementModal from "../components/EditAnnouncementModal";
 
 function Announcements() {
   const [announcements, setAnnouncements] = useState([]);
   const [error, setError] = useState("");
   const { user } = useAuth();
   const [showModal, setShowModal] = useState(false);
+  const [editingAnnouncement, setEditingAnnouncement] = useState(null);
 
   const isAdmin = user.role === "Admin";
 
@@ -48,6 +50,7 @@ function Announcements() {
             <th style={{ border: "1px solid #ccc", padding: "8px" }}>İçerik Özeti</th>
             <th style={{ border: "1px solid #ccc", padding: "8px" }}>Yayın Tarihi</th>
             <th style={{ border: "1px solid #ccc", padding: "8px" }}>Durum</th>
+            <th style={{ border: "1px solid #ccc", padding: "8px" }}>İşlemler</th>
           </tr>
         </thead>
         <tbody>
@@ -63,6 +66,11 @@ function Announcements() {
               <td style={{ border: "1px solid #ccc", padding: "8px" }}>
                 {a.isActive ? "Açık" : "Kapalı"}
               </td>
+              <td style={{ border: "1px solid #ccc", padding: "8px" }}>
+                {isAdmin && (
+                  <button onClick={() => setEditingAnnouncement(a)}>Düzenle</button>
+                )}
+              </td>
             </tr>
           ))}
         </tbody>
@@ -72,6 +80,14 @@ function Announcements() {
             onClose={() => setShowModal(false)}
             onCreated={fetchAnnouncements}
         />
+        )}
+
+        {editingAnnouncement && (
+          <EditAnnouncementModal
+            announcement={editingAnnouncement}
+            onClose={() => setEditingAnnouncement(null)}
+            onUpdated={fetchAnnouncements}
+          />
         )}
     </div>
   );
