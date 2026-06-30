@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
 import axiosInstance from "../api/axiosInstance";
+import CreateUserModal from "../components/CreateUserModal";
 
 function Users() {
   const [users, setUsers] = useState([]);
   const [error, setError] = useState("");
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     fetchUsers();
@@ -30,7 +32,7 @@ function Users() {
         }}
       >
         <h2>Kullanıcı Yönetimi</h2>
-        <button>+ Yeni Kullanıcı Ekle</button>
+        <button onClick={() => setShowModal(true)}>+ Yeni Kullanıcı Ekle</button>
       </div>
 
       <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "20px" }}>
@@ -61,6 +63,12 @@ function Users() {
           ))}
         </tbody>
       </table>
+      {showModal && (
+        <CreateUserModal
+          onClose={() => setShowModal(false)}
+          onCreated={fetchUsers}
+        />
+      )}
     </div>
   );
 }
