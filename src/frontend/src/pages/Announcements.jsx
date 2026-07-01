@@ -1,4 +1,10 @@
 import { useState, useEffect } from "react";
+import {
+  Box, Typography, Button, Table, TableHead, TableBody,
+  TableRow, TableCell, Paper, Chip, IconButton
+} from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
 import axiosInstance from "../api/axiosInstance";
 import { useAuth } from "../context/AuthContext";
 import CreateAnnouncementModal from "../components/CreateAnnouncementModal";
@@ -8,10 +14,10 @@ import ConfirmDialog from "../components/ConfirmDialog";
 function Announcements() {
   const [announcements, setAnnouncements] = useState([]);
   const [error, setError] = useState("");
-  const { user } = useAuth();
   const [showModal, setShowModal] = useState(false);
   const [editingAnnouncement, setEditingAnnouncement] = useState(null);
   const [deletingAnnouncement, setDeletingAnnouncement] = useState(null);
+  const { user } = useAuth();
 
   const isAdmin = user.role === "Admin";
 
@@ -28,89 +34,92 @@ function Announcements() {
     }
   }
 
-  if (error) return <div>{error}</div>;
+  if (error) return <Typography color="error" sx={{ p: 3 }}>{error}</Typography>;
 
   return (
-    <div style={{ padding: "20px" }}>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
-        <h2>Duyuru Yönetimi</h2>
+    <Box sx={{ p: 3 }}>
+      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
+        <Typography variant="h5" fontWeight="bold">Duyuru Yönetimi</Typography>
         {isAdmin && (
-        <button onClick={() => setShowModal(true)}>+ Yeni Duyuru Yayınla</button>
+          <Button variant="contained" onClick={() => setShowModal(true)}>
+            + Yeni Duyuru Yayınla
+          </Button>
         )}
-      </div>
+      </Box>
 
-      <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "20px" }}>
-        <thead>
-          <tr>
-            <th style={{ border: "1px solid #ccc", padding: "8px" }}>Duyuru Başlığı</th>
-            <th style={{ border: "1px solid #ccc", padding: "8px" }}>İçerik Özeti</th>
-            <th style={{ border: "1px solid #ccc", padding: "8px" }}>Yayın Tarihi</th>
-            <th style={{ border: "1px solid #ccc", padding: "8px" }}>Durum</th>
-            <th style={{ border: "1px solid #ccc", padding: "8px" }}>İşlemler</th>
-          </tr>
-        </thead>
-        <tbody>
-          {announcements.map((a) => (
-            <tr key={a.id}>
-              <td style={{ border: "1px solid #ccc", padding: "8px" }}>{a.title}</td>
-              <td style={{ border: "1px solid #ccc", padding: "8px" }}>
-                {a.content.length > 50 ? a.content.slice(0, 50) + "..." : a.content}
-              </td>
-              <td style={{ border: "1px solid #ccc", padding: "8px" }}>
-                {new Date(a.publishDate).toLocaleDateString("tr-TR")}
-              </td>
-              <td style={{ border: "1px solid #ccc", padding: "8px" }}>
-                {a.isActive ? "Açık" : "Kapalı"}
-              </td>
-              <td style={{ border: "1px solid #ccc", padding: "8px" }}>
+      <Paper>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell><strong>Duyuru Başlığı</strong></TableCell>
+              <TableCell><strong>İçerik Özeti</strong></TableCell>
+              <TableCell><strong>Yayın Tarihi</strong></TableCell>
+              <TableCell><strong>Durum</strong></TableCell>
+              {isAdmin && <TableCell><strong>İşlemler</strong></TableCell>}
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {announcements.map((a) => (
+              <TableRow key={a.id}>
+                <TableCell>{a.title}</TableCell>
+                <TableCell>
+                  {a.content.length > 50 ? a.content.slice(0, 50) + "..." : a.content}
+                </TableCell>
+                <TableCell>{new Date(a.publishDate).toLocaleDateString("tr-TR")}</TableCell>
+                <TableCell>
+                  <Chip
+                    label={a.isActive ? "Açık" : "Kapalı"}
+                    color={a.isActive ? "success" : "default"}
+                    size="small"
+                  />
+                </TableCell>
                 {isAdmin && (
-                  <>
-                    <button onClick={() => setEditingAnnouncement(a)}>Düzenle</button>
-                    <button onClick={() => setDeletingAnnouncement(a)}>Sil</button>
-                  </>
+                  <TableCell>
+                    <IconButton color="primary" onClick={() => setEditingAnnouncement(a)}>
+                      <EditIcon />
+                    </IconButton>
+                    <IconButton color="error" onClick={() => setDeletingAnnouncement(a)}>
+                      <DeleteIcon />
+                    </IconButton>
+                  </TableCell>
                 )}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </Paper>
+
       {showModal && (
         <CreateAnnouncementModal
-            onClose={() => setShowModal(false)}
-            onCreated={fetchAnnouncements}
+          onClose={() => setShowModal(false)}
+          onCreated={fetchAnnouncements}
         />
-        )}
+      )}
 
-        {editingAnnouncement && (
-          <EditAnnouncementModal
-            announcement={editingAnnouncement}
-            onClose={() => setEditingAnnouncement(null)}
-            onUpdated={fetchAnnouncements}
-          />
-        )}
+      {editingAnnouncement && (
+        <EditAnnouncementModal
+          announcement={editingAnnouncement}
+          onClose={() => setEditingAnnouncement(null)}
+          onUpdated={fetchAnnouncements}
+        />
+      )}
 
-        {deletingAnnouncement && (
-          <ConfirmDialog
-            message={`"${deletingAnnouncement.title}" başlıklı duyuruyu silmek istediğinize emin misiniz?`}
-            onConfirm={async () => {
-              try {
-                await axiosInstance.delete(`/announcements/${deletingAnnouncement.id}`);
-                fetchAnnouncements();
-              } catch (err) {
-                setError("Duyuru silinemedi.");
-              }
-              setDeletingAnnouncement(null);
-            }}
-            onCancel={() => setDeletingAnnouncement(null)}
-          />
-        )}
-    </div>
+      {deletingAnnouncement && (
+        <ConfirmDialog
+          message={`"${deletingAnnouncement.title}" başlıklı duyuruyu silmek istediğinize emin misiniz?`}
+          onConfirm={async () => {
+            try {
+              await axiosInstance.delete(`/announcements/${deletingAnnouncement.id}`);
+              fetchAnnouncements();
+            } catch (err) {
+              setError("Duyuru silinemedi.");
+            }
+            setDeletingAnnouncement(null);
+          }}
+          onCancel={() => setDeletingAnnouncement(null)}
+        />
+      )}
+    </Box>
   );
 }
 

@@ -1,4 +1,9 @@
 import { useState, useEffect } from "react";
+import {
+  Box, Typography, Button, Table, TableHead, TableBody,
+  TableRow, TableCell, Paper, Chip, IconButton
+} from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
 import axiosInstance from "../api/axiosInstance";
 import CreateUserModal from "../components/CreateUserModal";
 import EditUserModal from "../components/EditUserModal";
@@ -22,53 +27,55 @@ function Users() {
     }
   }
 
-  if (error) return <div>{error}</div>;
+  if (error) return <Typography color="error" sx={{ p: 3 }}>{error}</Typography>;
 
   return (
-    <div style={{ padding: "20px" }}>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
-        <h2>Kullanıcı Yönetimi</h2>
-        <button onClick={() => setShowModal(true)}>+ Yeni Kullanıcı Ekle</button>
-      </div>
+    <Box sx={{ p: 3 }}>
+      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
+        <Typography variant="h5" fontWeight="bold">Kullanıcı Yönetimi</Typography>
+        <Button variant="contained" onClick={() => setShowModal(true)}>
+          + Yeni Kullanıcı Ekle
+        </Button>
+      </Box>
 
-      <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "20px" }}>
-        <thead>
-          <tr>
-            <th style={{ border: "1px solid #ccc", padding: "8px" }}>Kullanıcı Bilgisi</th>
-            <th style={{ border: "1px solid #ccc", padding: "8px" }}>Rolü</th>
-            <th style={{ border: "1px solid #ccc", padding: "8px" }}>Kayıt Tarihi</th>
-            <th style={{ border: "1px solid #ccc", padding: "8px" }}>Hesap Durumu</th>
-            <th style={{ border: "1px solid #ccc", padding: "8px" }}>İşlemler</th>
-          </tr>
-        </thead>
-        <tbody>
-          {users.map((u) => (
-            <tr key={u.id}>
-              <td style={{ border: "1px solid #ccc", padding: "8px" }}>
-                <strong>{u.fullName}</strong>
-                <br />
-                <span style={{ color: "#888" }}>{u.email}</span>
-              </td>
-              <td style={{ border: "1px solid #ccc", padding: "8px" }}>{u.role}</td>
-              <td style={{ border: "1px solid #ccc", padding: "8px" }}>
-                {new Date(u.createdDate).toLocaleDateString("tr-TR")}
-              </td>
-              <td style={{ border: "1px solid #ccc", padding: "8px" }}>
-                {u.isActive ? "Aktif" : "Pasif"}
-              </td>
-              <td style={{ border: "1px solid #ccc", padding: "8px" }}>
-                <button onClick={() => setEditingUser(u)}>Düzenle</button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <Paper>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell><strong>Kullanıcı Bilgisi</strong></TableCell>
+              <TableCell><strong>Rolü</strong></TableCell>
+              <TableCell><strong>Kayıt Tarihi</strong></TableCell>
+              <TableCell><strong>Hesap Durumu</strong></TableCell>
+              <TableCell><strong>İşlemler</strong></TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {users.map((u) => (
+              <TableRow key={u.id}>
+                <TableCell>
+                  <Typography fontWeight="bold">{u.fullName}</Typography>
+                  <Typography variant="body2" color="text.secondary">{u.email}</Typography>
+                </TableCell>
+                <TableCell>{u.role}</TableCell>
+                <TableCell>{new Date(u.createdDate).toLocaleDateString("tr-TR")}</TableCell>
+                <TableCell>
+                  <Chip
+                    label={u.isActive ? "Aktif" : "Pasif"}
+                    color={u.isActive ? "success" : "default"}
+                    size="small"
+                  />
+                </TableCell>
+                <TableCell>
+                  <IconButton color="primary" onClick={() => setEditingUser(u)}>
+                    <EditIcon />
+                  </IconButton>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </Paper>
+
       {showModal && (
         <CreateUserModal
           onClose={() => setShowModal(false)}
@@ -83,7 +90,7 @@ function Users() {
           onUpdated={fetchUsers}
         />
       )}
-    </div>
+    </Box>
   );
 }
 

@@ -1,3 +1,4 @@
+import { Box, Typography, List, ListItem, ListItemButton, ListItemText, Button, Divider } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
@@ -13,42 +14,57 @@ function Sidebar() {
   const canSeeDashboard = user.role === "Admin" || user.role === "Yönetici";
   const canSeeUsers = user.role === "Admin";
 
+  const menuItems = [
+    { label: "Dashboard", path: "/dashboard", show: canSeeDashboard },
+    { label: "Görevler", path: "/tasks", show: true },
+    { label: "Duyurular", path: "/announcements", show: true },
+    { label: "Kullanıcılar", path: "/users", show: canSeeUsers },
+  ];
+
   return (
-    <div
-      style={{
-        width: "220px",
+    <Box
+      sx={{
+        width: 220,
         minHeight: "100vh",
-        background: "#1a2332",
-        color: "#fff",
-        padding: "20px",
+        bgcolor: "background.paper",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-between",
+        py: 2,
       }}
     >
-      <h2 style={{ marginBottom: "30px" }}>WORKSOFT</h2>
+      <Box>
+        <Typography
+          variant="h6"
+          fontWeight="bold"
+          sx={{ px: 2, mb: 2, color: "white" }}
+        >
+          WORKSOFT
+        </Typography>
+        <Divider />
+        <List>
+          {menuItems
+            .filter((item) => item.show)
+            .map((item) => (
+              <ListItem key={item.path} disablePadding>
+                <ListItemButton component={Link} to={item.path}>
+                  <ListItemText primary={item.label} />
+                </ListItemButton>
+              </ListItem>
+            ))}
+        </List>
+      </Box>
 
-      <nav style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-        {canSeeDashboard && (
-          <Link to="/dashboard" style={{ color: "#fff" }}>
-            Dashboard
-          </Link>
-        )}
-        <Link to="/tasks" style={{ color: "#fff" }}>
-          Görevler
-        </Link>
-        <Link to="/announcements" style={{ color: "#fff" }}>
-          Duyurular
-        </Link>
-        {canSeeUsers && (
-          <Link to="/users" style={{ color: "#fff" }}>
-            Kullanıcılar
-          </Link>
-        )}
-      </nav>
-
-      <div style={{ marginTop: "40px" }}>
-        <p>{user.fullName}</p>
-        <button onClick={handleLogout}>Çıkış Yap</button>
-      </div>
-    </div>
+      <Box sx={{ px: 2 }}>
+        <Divider sx={{ mb: 2 }} />
+        <Typography variant="body2" sx={{ mb: 1, color: "white" }}>
+          {user.fullName}
+        </Typography>
+        <Button variant="outlined" size="small" fullWidth onClick={handleLogout}>
+          Çıkış Yap
+        </Button>
+      </Box>
+    </Box>
   );
 }
 
