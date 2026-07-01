@@ -6,12 +6,14 @@ import Dashboard from "./pages/Dashboard";
 import Tasks from "./pages/Tasks";
 import Announcements from "./pages/Announcements";
 import Users from "./pages/Users";
+import { Navigate } from "react-router-dom";
 
 function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
         <Routes>
+          <Route path="/" element={<Navigate to="/login" replace />} />
           <Route path="/login" element={<Login />} />
           <Route
             path="/dashboard"

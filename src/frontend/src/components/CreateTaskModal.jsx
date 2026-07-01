@@ -86,7 +86,9 @@ function CreateTaskModal({ onClose, onCreated }) {
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
               fullWidth
-              InputLabelProps={{ shrink: true }}
+              slotProps={{
+                inputLabel: { shrink: true },
+              }}
             />
             <TextField
               label="Açıklama"

@@ -41,16 +41,16 @@ services:
     networks:
       - worksoft-network
 
-#   frontend:
-#     build:
-#       context: ./src/frontend
-#       dockerfile: Dockerfile
-#     ports:
-#       - "3000:80"
-#     depends_on:
-#       - api
-#     networks:
-#       - worksoft-network
+  frontend:
+    build:
+      context: ./src/frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+    depends_on:
+      - api
+    networks:
+      - worksoft-network
 
 networks:
   worksoft-network:
