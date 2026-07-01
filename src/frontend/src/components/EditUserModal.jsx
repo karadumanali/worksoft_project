@@ -1,4 +1,8 @@
 import { useState } from "react";
+import {
+  Dialog, DialogTitle, DialogContent, DialogActions,
+  Button, TextField, MenuItem, Box, FormControlLabel, Checkbox, Typography
+} from "@mui/material";
 import axiosInstance from "../api/axiosInstance";
 import ConfirmDialog from "./ConfirmDialog";
 
@@ -33,83 +37,61 @@ function EditUserModal({ targetUser, onClose, onUpdated }) {
     }
   }
 
-  function handleUpdateClick() {
-    setConfirmEdit(true);
-  }
-
   return (
-    <div
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        background: "rgba(0,0,0,0.5)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-    >
-      <div style={{ background: "#1a1a1a", padding: "30px", borderRadius: "8px", width: "500px" }}>
-        <h3>Kullanıcıyı Düzenle</h3>
-        <p style={{ fontStyle: "italic" }}>({targetUser.fullName})</p>
-
-        <div style={{ marginBottom: "10px" }}>
-          <label>Yeni e-mail</label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            style={{ width: "100%" }}
-          />
-        </div>
-
-        <div style={{ marginBottom: "10px" }}>
-          <label>Kullanıcı Rolü</label>
-          <select
-            value={roleId}
-            onChange={(e) => setRoleId(e.target.value)}
-            style={{ width: "100%" }}
-          >
-            {roleOptions.map((r) => (
-              <option key={r.id} value={r.id}>
-                {r.name}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div style={{ marginBottom: "10px" }}>
-          <label>
-            <input
-              type="checkbox"
-              checked={resetPassword}
-              onChange={(e) => setResetPassword(e.target.checked)}
+    <>
+      <Dialog open onClose={onClose} maxWidth="sm" fullWidth>
+        <DialogTitle>
+          Kullanıcıyı Düzenle
+          <Typography variant="body2" color="text.secondary">
+            ({targetUser.fullName})
+          </Typography>
+        </DialogTitle>
+        <DialogContent>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 1 }}>
+            <TextField
+              label="Yeni e-mail"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              fullWidth
             />
-            {" "}Kullanıcının Parolasını Sıfırla (Geçici parola e-posta ile iletilir)
-          </label>
-        </div>
-
-        {error && <p style={{ color: "red" }}>{error}</p>}
-
-        <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}>
-          <button onClick={onClose}>İptal</button>
-          <button onClick={handleUpdateClick}>Düzenle</button>
-        </div>
-      </div>
+            <TextField
+              label="Kullanıcı Rolü"
+              select
+              value={roleId}
+              onChange={(e) => setRoleId(e.target.value)}
+              fullWidth
+            >
+              {roleOptions.map((r) => (
+                <MenuItem key={r.id} value={r.id}>{r.name}</MenuItem>
+              ))}
+            </TextField>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={resetPassword}
+                  onChange={(e) => setResetPassword(e.target.checked)}
+                />
+              }
+              label="Kullanıcının Parolasını Sıfırla (Geçici parola e-posta ile iletilir)"
+            />
+          </Box>
+          {error && <Box sx={{ color: "error.main", mt: 1 }}>{error}</Box>}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={onClose} color="inherit">İptal</Button>
+          <Button onClick={() => setConfirmEdit(true)} variant="contained">Düzenle</Button>
+        </DialogActions>
+      </Dialog>
 
       {confirmEdit && (
         <ConfirmDialog
           message={`"${targetUser.fullName}" adlı kullanıcı için değişiklikleri onaylıyor musunuz?`}
-          onConfirm={() => {
-            setConfirmEdit(false);
-            handleUpdate();
-          }}
+          onConfirm={() => { setConfirmEdit(false); handleUpdate(); }}
           onCancel={() => setConfirmEdit(false)}
         />
       )}
-    </div>
+    </>
   );
 }
 

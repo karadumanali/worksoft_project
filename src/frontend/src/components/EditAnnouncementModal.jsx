@@ -1,4 +1,8 @@
 import { useState } from "react";
+import {
+  Dialog, DialogTitle, DialogContent, DialogActions,
+  Button, TextField, Box, FormControlLabel, Checkbox
+} from "@mui/material";
 import axiosInstance from "../api/axiosInstance";
 import ConfirmDialog from "./ConfirmDialog";
 
@@ -23,77 +27,52 @@ function EditAnnouncementModal({ announcement, onClose, onUpdated }) {
     }
   }
 
-  function handleUpdateClick() {
-    setConfirmEdit(true);
-  }
-
   return (
-    <div
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        background: "rgba(0,0,0,0.5)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-    >
-      <div style={{ background: "#1a1a1a", padding: "30px", borderRadius: "8px", width: "500px" }}>
-        <h3>Duyuruyu Düzenle</h3>
-
-        <div style={{ marginBottom: "10px" }}>
-          <label>Duyuru Başlığı</label>
-          <input
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            style={{ width: "100%" }}
-          />
-        </div>
-
-        <div style={{ marginBottom: "10px" }}>
-          <label>Duyuru İçeriği</label>
-          <textarea
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            maxLength={100}
-            style={{ width: "100%" }}
-          />
-        </div>
-
-        <div style={{ marginBottom: "10px" }}>
-          <label>
-            <input
-              type="checkbox"
-              checked={isActive}
-              onChange={(e) => setIsActive(e.target.checked)}
+    <>
+      <Dialog open onClose={onClose} maxWidth="sm" fullWidth>
+        <DialogTitle>Duyuruyu Düzenle</DialogTitle>
+        <DialogContent>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 1 }}>
+            <TextField
+              label="Duyuru Başlığı"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              fullWidth
             />
-            {" "}Aktif
-          </label>
-        </div>
-
-        {error && <p style={{ color: "red" }}>{error}</p>}
-
-        <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}>
-          <button onClick={onClose}>İptal</button>
-          <button onClick={handleUpdateClick}>Düzenle</button>
-        </div>
-      </div>
+            <TextField
+              label="Duyuru İçeriği"
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              fullWidth
+              multiline
+              rows={3}
+              inputProps={{ maxLength: 100 }}
+            />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={isActive}
+                  onChange={(e) => setIsActive(e.target.checked)}
+                />
+              }
+              label="Aktif"
+            />
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={onClose} color="inherit">İptal</Button>
+          <Button onClick={() => setConfirmEdit(true)} variant="contained">Düzenle</Button>
+        </DialogActions>
+      </Dialog>
 
       {confirmEdit && (
         <ConfirmDialog
           message={`"${announcement.title}" başlıklı duyuruyu, "${title}" başlıklı duyuru ile değiştirmek istediğinize emin misiniz?`}
-          onConfirm={() => {
-            setConfirmEdit(false);
-            handleUpdate();
-          }}
+          onConfirm={() => { setConfirmEdit(false); handleUpdate(); }}
           onCancel={() => setConfirmEdit(false)}
         />
       )}
-    </div>
+    </>
   );
 }
 

@@ -1,4 +1,8 @@
 import { useState, useEffect } from "react";
+import {
+  Dialog, DialogTitle, DialogContent, DialogActions,
+  Button, TextField, MenuItem, Box
+} from "@mui/material";
 import axiosInstance from "../api/axiosInstance";
 import ConfirmDialog from "./ConfirmDialog";
 
@@ -40,104 +44,73 @@ function EditTaskModal({ task, onClose, onUpdated }) {
     }
   }
 
-  function handleUpdateClick() {
-    setConfirmEdit(true);
-  }
-
   return (
-    <div
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        background: "rgba(0,0,0,0.5)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-    >
-      <div style={{ background: "#1a1a1a", padding: "30px", borderRadius: "8px", width: "500px" }}>
-        <h3>Görev Düzenle</h3>
-
-        <div style={{ marginBottom: "10px" }}>
-          <label>Görev Başlığı</label>
-          <input
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            style={{ width: "100%" }}
-          />
-        </div>
-
-        <div style={{ marginBottom: "10px" }}>
-          <label>Atanan Kişi</label>
-          <select
-            value={assignedUserId}
-            onChange={(e) => setAssignedUserId(e.target.value)}
-            style={{ width: "100%" }}
-          >
-            {users.map((u) => (
-              <option key={u.id} value={u.id}>
-                {u.fullName}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div style={{ marginBottom: "10px" }}>
-          <label>Öncelik</label>
-          <select
-            value={priority}
-            onChange={(e) => setPriority(e.target.value)}
-            style={{ width: "100%" }}
-          >
-            <option value="Düşük">Düşük</option>
-            <option value="Orta">Orta</option>
-            <option value="Yüksek">Yüksek</option>
-          </select>
-        </div>
-
-        <div style={{ marginBottom: "10px" }}>
-          <label>Bitiş Tarihi</label>
-          <input
-            type="date"
-            value={dueDate}
-            onChange={(e) => setDueDate(e.target.value)}
-            style={{ width: "100%" }}
-          />
-        </div>
-
-        <div style={{ marginBottom: "10px" }}>
-          <label>Açıklama</label>
-          <textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            maxLength={100}
-            style={{ width: "100%" }}
-          />
-        </div>
-
-        {error && <p style={{ color: "red" }}>{error}</p>}
-
-        <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}>
-          <button onClick={onClose}>İptal</button>
-          <button onClick={handleUpdateClick}>Düzenle</button>
-        </div>
-      </div>
+    <>
+      <Dialog open onClose={onClose} maxWidth="sm" fullWidth>
+        <DialogTitle>Görev Düzenle</DialogTitle>
+        <DialogContent>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 1 }}>
+            <TextField
+              label="Görev Başlığı"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              fullWidth
+            />
+            <TextField
+              label="Atanan Kişi"
+              select
+              value={assignedUserId}
+              onChange={(e) => setAssignedUserId(e.target.value)}
+              fullWidth
+            >
+              {users.map((u) => (
+                <MenuItem key={u.id} value={u.id}>{u.fullName}</MenuItem>
+              ))}
+            </TextField>
+            <TextField
+              label="Öncelik"
+              select
+              value={priority}
+              onChange={(e) => setPriority(e.target.value)}
+              fullWidth
+            >
+              <MenuItem value="Düşük">Düşük</MenuItem>
+              <MenuItem value="Orta">Orta</MenuItem>
+              <MenuItem value="Yüksek">Yüksek</MenuItem>
+            </TextField>
+            <TextField
+              label="Bitiş Tarihi"
+              type="date"
+              value={dueDate}
+              onChange={(e) => setDueDate(e.target.value)}
+              fullWidth
+              InputLabelProps={{ shrink: true }}
+            />
+            <TextField
+              label="Açıklama"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              fullWidth
+              multiline
+              rows={3}
+              inputProps={{ maxLength: 100 }}
+            />
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={onClose} color="inherit">İptal</Button>
+          <Button onClick={() => setConfirmEdit(true)} variant="contained">Düzenle</Button>
+        </DialogActions>
+      </Dialog>
 
       {confirmEdit && (
         <ConfirmDialog
-          message="Düzenlemeyi onaylıyor musunuz"
-          onConfirm={() => {
-            setConfirmEdit(false);
-            handleUpdate();
-          }}
+          message="Düzenlemeyi onaylıyor musunuz?"
+          onConfirm={() => { setConfirmEdit(false); handleUpdate(); }}
           onCancel={() => setConfirmEdit(false)}
         />
       )}
-    </div>
+    </>
   );
 }
 

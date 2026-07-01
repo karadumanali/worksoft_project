@@ -1,4 +1,8 @@
 import { useState } from "react";
+import {
+  Dialog, DialogTitle, DialogContent, DialogActions,
+  Button, TextField, Box, FormControlLabel, Checkbox
+} from "@mui/material";
 import axiosInstance from "../api/axiosInstance";
 import ConfirmDialog from "./ConfirmDialog";
 
@@ -25,77 +29,48 @@ function CreateAnnouncementModal({ onClose, onCreated }) {
     }
   }
 
-  function handleCreateClick() {
-    setConfirmCreate(true);
-  }
-
-  function handleCancelClick() {
-    setConfirmCancel(true);
-  }
-
   return (
-    <div
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        background: "rgba(0,0,0,0.5)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-    >
-      <div style={{ background: "#1a1a1a", padding: "30px", borderRadius: "8px", width: "500px" }}>
-        <h3>Yeni Duyuru Yayınla</h3>
-
-        <div style={{ marginBottom: "10px" }}>
-          <label>Duyuru Başlığı</label>
-          <input
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            style={{ width: "100%" }}
-          />
-        </div>
-
-        <div style={{ marginBottom: "10px" }}>
-          <label>Duyuru İçeriği</label>
-          <textarea
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            maxLength={100}
-            style={{ width: "100%" }}
-          />
-        </div>
-
-        <div style={{ marginBottom: "10px" }}>
-          <label>
-            <input
-              type="checkbox"
-              checked={sendEmailNotification}
-              onChange={(e) => setSendEmailNotification(e.target.checked)}
+    <>
+      <Dialog open onClose={() => setConfirmCancel(true)} maxWidth="sm" fullWidth>
+        <DialogTitle>Yeni Duyuru Yayınla</DialogTitle>
+        <DialogContent>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 1 }}>
+            <TextField
+              label="Duyuru Başlığı"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              fullWidth
             />
-            {" "}Yayınlandığında tüm personellere otomatik e-posta bildirimi at
-          </label>
-        </div>
-
-        {error && <p style={{ color: "red" }}>{error}</p>}
-
-        <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}>
-          <button onClick={handleCancelClick}>İptal</button>
-          <button onClick={handleCreateClick}>Oluştur</button>
-        </div>
-      </div>
+            <TextField
+              label="Duyuru İçeriği"
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              fullWidth
+              multiline
+              rows={3}
+              inputProps={{ maxLength: 100 }}
+            />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={sendEmailNotification}
+                  onChange={(e) => setSendEmailNotification(e.target.checked)}
+                />
+              }
+              label="Yayınlandığında tüm personellere otomatik e-posta bildirimi at"
+            />
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setConfirmCancel(true)} color="inherit">İptal</Button>
+          <Button onClick={() => setConfirmCreate(true)} variant="contained">Oluştur</Button>
+        </DialogActions>
+      </Dialog>
 
       {confirmCreate && (
         <ConfirmDialog
           message="Duyuruyu yayınlamak istediğinize emin misiniz?"
-          onConfirm={() => {
-            setConfirmCreate(false);
-            handleCreate();
-          }}
+          onConfirm={() => { setConfirmCreate(false); handleCreate(); }}
           onCancel={() => setConfirmCreate(false)}
         />
       )}
@@ -103,14 +78,11 @@ function CreateAnnouncementModal({ onClose, onCreated }) {
       {confirmCancel && (
         <ConfirmDialog
           message="İptal etmek istediğinize emin misiniz?"
-          onConfirm={() => {
-            setConfirmCancel(false);
-            onClose();
-          }}
+          onConfirm={() => { setConfirmCancel(false); onClose(); }}
           onCancel={() => setConfirmCancel(false)}
         />
       )}
-    </div>
+    </>
   );
 }
 

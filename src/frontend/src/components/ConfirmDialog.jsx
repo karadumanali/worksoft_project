@@ -1,27 +1,19 @@
+import {
+  Dialog, DialogContent, DialogActions,
+  Button, Typography
+} from "@mui/material";
+
 function ConfirmDialog({ message, onConfirm, onCancel }) {
   return (
-    <div
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        background: "rgba(0,0,0,0.6)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        zIndex: 1000,
-      }}
-    >
-      <div style={{ background: "#fff", color: "#000", padding: "30px", borderRadius: "8px", textAlign: "center" }}>
-        <p>{message}</p>
-        <div style={{ display: "flex", justifyContent: "center", gap: "10px" }}>
-          <button onClick={onConfirm}>Evet</button>
-          <button onClick={onCancel}>Hayır</button>
-        </div>
-      </div>
-    </div>
+    <Dialog open onClose={onCancel} maxWidth="xs" fullWidth>
+      <DialogContent sx={{ textAlign: "center", pt: 4, pb: 2 }}>
+        <Typography variant="body1">{message}</Typography>
+      </DialogContent>
+      <DialogActions sx={{ justifyContent: "center", pb: 3, gap: 2 }}>
+        <Button variant="contained" onClick={onConfirm}>Evet</Button>
+        <Button variant="outlined" color="inherit" onClick={onCancel}>Hayır</Button>
+      </DialogActions>
+    </Dialog>
   );
 }
 

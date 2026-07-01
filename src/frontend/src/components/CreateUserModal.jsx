@@ -1,4 +1,8 @@
 import { useState } from "react";
+import {
+  Dialog, DialogTitle, DialogContent, DialogActions,
+  Button, TextField, MenuItem, Box, FormControlLabel, Switch
+} from "@mui/material";
 import axiosInstance from "../api/axiosInstance";
 import ConfirmDialog from "./ConfirmDialog";
 
@@ -33,104 +37,70 @@ function CreateUserModal({ onClose, onCreated }) {
     }
   }
 
-  function handleCreateClick() {
-    setConfirmCreate(true);
-  }
-
   const selectedRoleName = roleOptions.find((r) => r.id === Number(roleId))?.name;
 
   return (
-    <div
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        background: "rgba(0,0,0,0.5)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-    >
-      <div style={{ background: "#1a1a1a", padding: "30px", borderRadius: "8px", width: "500px" }}>
-        <h3>Yeni Kullanıcı Ekle</h3>
-
-        <div style={{ marginBottom: "10px" }}>
-          <label>Ad-Soyad</label>
-          <input
-            type="text"
-            value={fullName}
-            onChange={(e) => setFullName(e.target.value)}
-            style={{ width: "100%" }}
-          />
-        </div>
-
-        <div style={{ marginBottom: "10px" }}>
-          <label>E-mail</label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            style={{ width: "100%" }}
-          />
-        </div>
-
-        <div style={{ marginBottom: "10px" }}>
-          <label>Geçici Parola</label>
-          <input
-            type="text"
-            value={tempPassword}
-            onChange={(e) => setTempPassword(e.target.value)}
-            style={{ width: "100%" }}
-          />
-        </div>
-
-        <div style={{ marginBottom: "10px" }}>
-          <label>Kullanıcı Rolü</label>
-          <select
-            value={roleId}
-            onChange={(e) => setRoleId(e.target.value)}
-            style={{ width: "100%" }}
-          >
-            {roleOptions.map((r) => (
-              <option key={r.id} value={r.id}>
-                {r.name}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div style={{ marginBottom: "10px" }}>
-          <label>
-            <input
-              type="checkbox"
-              checked={isActive}
-              onChange={(e) => setIsActive(e.target.checked)}
+    <>
+      <Dialog open onClose={onClose} maxWidth="sm" fullWidth>
+        <DialogTitle>Yeni Kullanıcı Ekle</DialogTitle>
+        <DialogContent>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 1 }}>
+            <TextField
+              label="Ad-Soyad"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              fullWidth
             />
-            {" "}Kullanıcı hemen aktif edilsin mi?
-          </label>
-        </div>
-
-        {error && <p style={{ color: "red" }}>{error}</p>}
-
-        <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}>
-          <button onClick={onClose}>İptal</button>
-          <button onClick={handleCreateClick}>Oluştur</button>
-        </div>
-      </div>
+            <TextField
+              label="E-mail"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              fullWidth
+            />
+            <TextField
+              label="Geçici Parola"
+              value={tempPassword}
+              onChange={(e) => setTempPassword(e.target.value)}
+              fullWidth
+            />
+            <TextField
+              label="Kullanıcı Rolü"
+              select
+              value={roleId}
+              onChange={(e) => setRoleId(e.target.value)}
+              fullWidth
+            >
+              {roleOptions.map((r) => (
+                <MenuItem key={r.id} value={r.id}>{r.name}</MenuItem>
+              ))}
+            </TextField>
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={isActive}
+                  onChange={(e) => setIsActive(e.target.checked)}
+                />
+              }
+              label="Kullanıcı hemen aktif edilsin mi?"
+            />
+          </Box>
+          {error && <Box sx={{ color: "error.main", mt: 1 }}>{error}</Box>}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={onClose} color="inherit">İptal</Button>
+          <Button onClick={() => setConfirmCreate(true)} variant="contained">Oluştur</Button>
+        </DialogActions>
+      </Dialog>
 
       {confirmCreate && (
         <ConfirmDialog
           message={`"${fullName}" adlı kullanıcıyı "${selectedRoleName}" rolünde eklemek istediğinize emin misiniz?`}
-          onConfirm={() => {
-            setConfirmCreate(false);
-            handleCreate();
-          }}
+          onConfirm={() => { setConfirmCreate(false); handleCreate(); }}
           onCancel={() => setConfirmCreate(false)}
         />
       )}
-    </div>
+    </>
   );
 }
 
