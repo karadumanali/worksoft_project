@@ -6,6 +6,7 @@ using System.Text;
 using WorksoftTaskTracker.Application.Interfaces;
 using WorksoftTaskTracker.Infrastructure.Persistence;
 using WorksoftTaskTracker.Infrastructure.Repositories;
+using WorksoftTaskTracker.API.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -90,6 +91,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseCors("AllowFrontend");
 app.UseAuthentication();
 app.UseAuthorization();
