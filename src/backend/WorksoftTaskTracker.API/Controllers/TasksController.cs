@@ -4,6 +4,7 @@ using System.Security.Claims;
 using WorksoftTaskTracker.Application.DTOs.Task;
 using WorksoftTaskTracker.Application.Interfaces;
 using WorksoftTaskTracker.Domain.Entities;
+using Microsoft.Extensions.Caching.Distributed;
 
 namespace WorksoftTaskTracker.API.Controllers;
 
@@ -13,10 +14,13 @@ namespace WorksoftTaskTracker.API.Controllers;
 public class TasksController : ControllerBase
 {
     private readonly ITaskRepository _taskRepository;
+    private readonly IDistributedCache _cache;
+    private const string DashboardCacheKey = "dashboard_summary";
 
-    public TasksController(ITaskRepository taskRepository)
+    public TasksController(ITaskRepository taskRepository, IDistributedCache cache)
     {
         _taskRepository = taskRepository;
+        _cache = cache;
     }
 
     [HttpGet]
@@ -79,6 +83,7 @@ public class TasksController : ControllerBase
 
         await _taskRepository.AddAsync(task);
         await _taskRepository.SaveChangesAsync();
+        await _cache.RemoveAsync(DashboardCacheKey);
 
         return Ok(new { isSuccess = true, message = "Görev başarıyla oluşturuldu." });
     }
@@ -99,6 +104,7 @@ public class TasksController : ControllerBase
 
         await _taskRepository.UpdateAsync(task);
         await _taskRepository.SaveChangesAsync();
+        await _cache.RemoveAsync(DashboardCacheKey);
 
         return Ok(new { isSuccess = true, message = "Görev başarıyla güncellendi." });
     }
@@ -114,6 +120,7 @@ public class TasksController : ControllerBase
 
         await _taskRepository.UpdateAsync(task);
         await _taskRepository.SaveChangesAsync();
+        await _cache.RemoveAsync(DashboardCacheKey);
 
         return Ok(new { isSuccess = true, message = "Görev durumu güncellendi." });
     }
@@ -128,6 +135,7 @@ public class TasksController : ControllerBase
 
         await _taskRepository.DeleteAsync(task);
         await _taskRepository.SaveChangesAsync();
+        await _cache.RemoveAsync(DashboardCacheKey);
 
         return Ok(new { isSuccess = true, message = "Görev başarıyla silindi." });
     }

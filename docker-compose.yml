@@ -4,7 +4,7 @@ services:
   mssql:
     image: mcr.microsoft.com/mssql/server:2022-latest
     environment:
-      SA_PASSWORD: "Worksoft1234*"
+      SA_PASSWORD: "Wstaj2026Serkan"
       ACCEPT_EULA: "Y"
     ports:
       - "1433:1433"
@@ -28,7 +28,7 @@ services:
       - "5000:8080"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Server=mssql,1433;Database=WorksoftTaskTracker;User Id=sa;Password=Worksoft1234*;TrustServerCertificate=True;
+      - ConnectionStrings__DefaultConnection=Server=mssql,1433;Database=WorksoftTaskTracker;User Id=sa;Password=Wstaj2026Serkan;TrustServerCertificate=True;
       - Redis__ConnectionString=redis:6379
       - Redis__InstanceName=WorksoftCache
       - Jwt__SecretKey=worksoft-super-secret-jwt-key-minimum-32-chars
