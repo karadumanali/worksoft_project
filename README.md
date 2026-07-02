@@ -1,177 +1,112 @@
-# Worksoft Mini Task Tracker
+# Worksoft Task Tracker
 
-Şirket içi görev ve duyuru yönetimi için geliştirilmiş full-stack web uygulaması.
+Worksoft şirketi bünyesinde staj kapsamında geliştirilen şirket içi görev ve duyuru yönetim sistemi.
 
-## Teknoloji Stack
+## Teknolojiler
 
-| Katman | Teknoloji |
-|--------|-----------|
-| Backend API | ASP.NET Core 8 Web API |
-| Frontend | React 18 + Vite |
-| Veritabanı | Microsoft SQL Server 2022 |
-| Cache | Redis 7 |
-| Container | Docker + Docker Compose |
-| Orkestrasyon | Kubernetes (opsiyonel) |
-| Auth | JWT Bearer Token |
+**Backend:** ASP.NET Core 8, Entity Framework Core, MSSQL, Redis  
+**Frontend:** React 18, Vite, Material UI  
+**Altyapı:** Docker, Docker Compose, Kubernetes  
 
 ## Kullanıcı Rolleri
 
-- **Admin** — Kullanıcı oluşturur, rol tanımlar, duyuru yayınlar
-- **Yönetici** — Görev oluşturur, atar ve takip eder
-- **Personel** — Kendisine atanmış görevleri görür ve durumlarını günceller
+| Rol | Yetkiler |
+|-----|----------|
+| Admin | Tüm işlemler — kullanıcı, görev, duyuru yönetimi, dashboard |
+| Yönetici | Görev oluşturma/düzenleme, duyuru görüntüleme, dashboard |
+| Personel | Sadece kendi görevlerini görme ve durum güncelleme |
 
-## Ön Gereksinimler
+## Kurulum
 
-Aşağıdaki araçların kurulu olması gerekir:
+### Gereksinimler
 
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/) (v24+)
-- [Docker Compose](https://docs.docker.com/compose/) (v2.20+)
-- Git
-
-> Geliştirme ortamı için ek olarak:
-> - [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
-> - [Node.js](https://nodejs.org/) (v20 LTS)
-
-## Kurulum ve Çalıştırma
+- Docker Desktop
+- .NET 8 SDK (migration için)
+- Node.js 20+ (frontend geliştirme için)
 
 ### 1. Repoyu klonla
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/worksoft-task-tracker.git
-cd worksoft-task-tracker
+git clone <repo-url>
+cd worksoft_project
 ```
 
-### 2. Environment dosyasını oluştur
+### 2. Sistemi ayağa kaldır
 
 ```bash
-cp .env.example .env
+docker-compose up --build
 ```
 
-`.env` dosyasını açıp şu alanları mutlaka doldur:
-
-```
-MSSQL_SA_PASSWORD=   # En az 8 karakter, büyük/küçük/rakam/özel içermeli
-JWT_SECRET_KEY=      # En az 32 karakter rastgele string
-```
-
-### 3. Docker Compose ile başlat
+### 3. Migration çalıştır (ilk kurulumda)
 
 ```bash
-docker compose up --build -d
+cd src/backend
+dotnet ef database update --project WorksoftTaskTracker.Infrastructure --startup-project WorksoftTaskTracker.API
 ```
 
-Tüm servisler ayağa kalktıktan sonra:
+> Not: Migration öncesi `appsettings.json`'da connection string'i geçici olarak `Server=localhost,1433` olarak değiştir, migration sonrası `Server=mssql,1433`'e geri al.
 
-| Servis | URL |
-|--------|-----|
-| React Frontend | http://localhost:3000 |
-| ASP.NET Core API | http://localhost:8080 |
-| Swagger UI | http://localhost:8080/swagger |
-| Redis (iç ağ) | redis:6379 |
-| MSSQL (iç ağ) | mssql:1433 |
+### 4. Admin kullanıcısını oluştur
 
-### 4. Veritabanı migration'larını çalıştır
-
-İlk kurulumda:
+`src/backend/seed.sql` dosyasını çalıştır:
 
 ```bash
-docker compose exec api dotnet ef database update
+docker cp src/backend/seed.sql worksoft_project-mssql-1:/seed.sql
+docker exec -it worksoft_project-mssql-1 /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "<SA_PASSWORD>" -No -i /seed.sql
 ```
 
-### 5. Logları izle
+### 5. Uygulamaya eriş
 
-```bash
-docker compose logs -f
-```
+| Servis | Adres |
+|--------|-------|
+| Frontend | http://localhost:3000 |
+| API | http://localhost:5000 |
+| Swagger | http://localhost:5000/swagger |
 
-### 6. Durdur
+### Varsayılan Admin Hesabı
 
-```bash
-docker compose down
-```
-
-Verileri de sıfırlamak için:
-
-```bash
-docker compose down -v
-```
+E-posta : admin@worksoft.com
+Şifre   : password
 
 ## Proje Yapısı
 
-```
-worksoft-task-tracker/
+worksoft_project/
 ├── src/
-│   ├── backend/                 # ASP.NET Core Web API
-│   │   ├── WorksoftTaskTracker.API/
-│   │   ├── WorksoftTaskTracker.Application/
-│   │   ├── WorksoftTaskTracker.Domain/
-│   │   └── WorksoftTaskTracker.Infrastructure/
-│   └── frontend/                # React + Vite
-│       ├── src/
-│       │   ├── components/
-│       │   ├── pages/
-│       │   ├── services/
-│       │   └── context/
-│       └── public/
-├── docs/                        # Tasarım dokümanları, ERD, API sözleşmesi
-├── k8s/                         # Kubernetes manifest dosyaları (opsiyonel)
+│   ├── backend/
+│   │   ├── WorksoftTaskTracker.Domain/       # Entity'ler
+│   │   ├── WorksoftTaskTracker.Application/  # Interface'ler ve DTO'lar
+│   │   ├── WorksoftTaskTracker.Infrastructure/ # EF Core, Repository, Redis
+│   │   └── WorksoftTaskTracker.API/          # Controller'lar, Middleware
+│   └── frontend/                             # React + MUI
+├── k8s/                                      # Kubernetes manifest'leri
 ├── docker-compose.yml
-├── .env.example
-├── .gitignore
-├── CONTRIBUTING.md
-├── SECURITY.md
 └── README.md
-```
 
-## API Dokümantasyonu
 
-Uygulama ayaktayken Swagger UI üzerinden tüm endpoint'lere erişilebilir:
 
-```
-http://localhost:8080/swagger
-```
+## Güvenlik
 
-API sözleşmesinin detaylı açıklaması için `docs/API_Dokumani.md` dosyasına bakınız.
+- Şifreler BCrypt ile hash'lenerek saklanır
+- JWT Bearer token ile kimlik doğrulama
+- Rol bazlı yetkilendirme (Admin, Yönetici, Personel)
+- Global exception handler (stack trace gizleme)
+- Server-side input validation
+- EF Core parametrize sorgular (SQL injection koruması)
+- Generic login hata mesajı (kullanıcı adı enumeration koruması)
 
-## Geliştirme Ortamında Çalıştırma
+## Geliştirme Ortamı
 
-### Backend (hot reload ile)
+### Backend
 
 ```bash
 cd src/backend/WorksoftTaskTracker.API
 dotnet watch run
 ```
 
-### Frontend (hot reload ile)
+### Frontend
 
 ```bash
 cd src/frontend
 npm install
 npm run dev
 ```
-
-> Not: Geliştirme ortamında MSSQL ve Redis için Docker Compose kullanmaya devam edebilirsin:
-> ```bash
-> docker compose up mssql redis -d
-> ```
-
-## Varsayılan Admin Hesabı
-
-İlk kurulumda seed data ile oluşturulan admin hesabı:
-
-```
-E-posta : admin@worksoft.com
-Şifre   : Admin1234*  (ilk girişte değiştirmeniz zorunludur)
-```
-
-## Kubernetes Kurulumu (Opsiyonel)
-
-```bash
-kubectl apply -f k8s/
-```
-
-Detaylar için `k8s/README.md` dosyasına bakınız.
-
-## Lisans
-
-Bu proje Worksoft Yazılım staj kapsamında geliştirilmiştir.
