@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import {
   Dialog, DialogTitle, DialogContent, DialogActions,
-  Button, TextField, MenuItem, Box
+  Button, TextField, MenuItem, Box, CircularProgress
 } from "@mui/material";
 import axiosInstance from "../api/axiosInstance";
 import ConfirmDialog from "./ConfirmDialog";
@@ -14,6 +14,7 @@ function CreateTaskModal({ onClose, onCreated }) {
   const [dueDate, setDueDate] = useState("");
   const [description, setDescription] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const [confirmCreate, setConfirmCreate] = useState(false);
   const [confirmCancel, setConfirmCancel] = useState(false);
 
@@ -30,6 +31,7 @@ function CreateTaskModal({ onClose, onCreated }) {
   }, []);
 
   async function handleCreate() {
+    setLoading(true);
     try {
       await axiosInstance.post("/tasks", {
         title,
@@ -42,6 +44,7 @@ function CreateTaskModal({ onClose, onCreated }) {
       onClose();
     } catch (err) {
       setError("Görev oluşturulamadı.");
+      setLoading(false);
     }
   }
 
@@ -86,9 +89,7 @@ function CreateTaskModal({ onClose, onCreated }) {
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
               fullWidth
-              slotProps={{
-                inputLabel: { shrink: true },
-              }}
+              slotProps={{ inputLabel: { shrink: true } }}
             />
             <TextField
               label="Açıklama"
@@ -99,11 +100,21 @@ function CreateTaskModal({ onClose, onCreated }) {
               rows={3}
               inputProps={{ maxLength: 100 }}
             />
+            {error && <Box sx={{ color: "error.main" }}>{error}</Box>}
           </Box>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setConfirmCancel(true)} color="inherit">İptal</Button>
-          <Button onClick={() => setConfirmCreate(true)} variant="contained">Oluştur</Button>
+          <Button onClick={() => setConfirmCancel(true)} color="inherit" disabled={loading}>
+            İptal
+          </Button>
+          <Button
+            onClick={() => setConfirmCreate(true)}
+            variant="contained"
+            disabled={loading}
+            startIcon={loading ? <CircularProgress size={16} color="inherit" /> : null}
+          >
+            {loading ? "Oluşturuluyor..." : "Oluştur"}
+          </Button>
         </DialogActions>
       </Dialog>
 

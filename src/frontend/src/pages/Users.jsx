@@ -5,6 +5,7 @@ import {
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import axiosInstance from "../api/axiosInstance";
+import { useSnackbar } from "../context/SnackbarContext";
 import CreateUserModal from "../components/CreateUserModal";
 import EditUserModal from "../components/EditUserModal";
 
@@ -13,6 +14,7 @@ function Users() {
   const [error, setError] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
+  const { showSnackbar } = useSnackbar();
 
   useEffect(() => {
     fetchUsers();
@@ -39,6 +41,11 @@ function Users() {
       </Box>
 
       <Paper>
+        {users.length === 0 ? (
+          <Box sx={{ p: 4, textAlign: "center", color: "text.secondary" }}>
+            Henüz hiç kullanıcı eklenmemiş.
+          </Box>
+        ) : (
         <Table>
           <TableHead>
             <TableRow>
@@ -74,12 +81,16 @@ function Users() {
             ))}
           </TableBody>
         </Table>
+        )}
       </Paper>
 
       {showModal && (
         <CreateUserModal
           onClose={() => setShowModal(false)}
-          onCreated={fetchUsers}
+          onCreated={() => {
+            fetchUsers();
+            showSnackbar("Kullanıcı başarıyla eklendi.");
+          }}
         />
       )}
 
@@ -87,7 +98,10 @@ function Users() {
         <EditUserModal
           targetUser={editingUser}
           onClose={() => setEditingUser(null)}
-          onUpdated={fetchUsers}
+          onUpdated={() => {
+            fetchUsers();
+            showSnackbar("Kullanıcı başarıyla güncellendi.");
+          }}
         />
       )}
     </Box>

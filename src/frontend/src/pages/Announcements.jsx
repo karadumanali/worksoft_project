@@ -7,6 +7,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import axiosInstance from "../api/axiosInstance";
 import { useAuth } from "../context/AuthContext";
+import { useSnackbar } from "../context/SnackbarContext";
 import CreateAnnouncementModal from "../components/CreateAnnouncementModal";
 import EditAnnouncementModal from "../components/EditAnnouncementModal";
 import ConfirmDialog from "../components/ConfirmDialog";
@@ -18,6 +19,7 @@ function Announcements() {
   const [editingAnnouncement, setEditingAnnouncement] = useState(null);
   const [deletingAnnouncement, setDeletingAnnouncement] = useState(null);
   const { user } = useAuth();
+  const { showSnackbar } = useSnackbar();
 
   const isAdmin = user.role === "Admin";
 
@@ -48,6 +50,11 @@ function Announcements() {
       </Box>
 
       <Paper>
+        {announcements.length === 0 ? (
+          <Box sx={{ p: 4, textAlign: "center", color: "text.secondary" }}>
+            Henüz hiç duyuru yayınlanmamış.
+          </Box>
+        ) : (
         <Table>
           <TableHead>
             <TableRow>
@@ -87,12 +94,16 @@ function Announcements() {
             ))}
           </TableBody>
         </Table>
+        )}
       </Paper>
 
       {showModal && (
         <CreateAnnouncementModal
           onClose={() => setShowModal(false)}
-          onCreated={fetchAnnouncements}
+          onCreated={() => {
+            fetchAnnouncements();
+            showSnackbar("Duyuru başarıyla yayınlandı.");
+          }}
         />
       )}
 
@@ -100,7 +111,10 @@ function Announcements() {
         <EditAnnouncementModal
           announcement={editingAnnouncement}
           onClose={() => setEditingAnnouncement(null)}
-          onUpdated={fetchAnnouncements}
+          onUpdated={() => {
+            fetchAnnouncements();
+            showSnackbar("Duyuru başarıyla güncellendi.");
+          }}
         />
       )}
 
@@ -111,8 +125,9 @@ function Announcements() {
             try {
               await axiosInstance.delete(`/announcements/${deletingAnnouncement.id}`);
               fetchAnnouncements();
+              showSnackbar("Duyuru başarıyla silindi.");
             } catch (err) {
-              setError("Duyuru silinemedi.");
+              showSnackbar("Duyuru silinemedi.", "error");
             }
             setDeletingAnnouncement(null);
           }}

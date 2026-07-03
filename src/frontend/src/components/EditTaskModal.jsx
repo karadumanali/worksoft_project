@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import {
   Dialog, DialogTitle, DialogContent, DialogActions,
-  Button, TextField, MenuItem, Box
+  Button, TextField, MenuItem, Box, CircularProgress
 } from "@mui/material";
 import axiosInstance from "../api/axiosInstance";
 import ConfirmDialog from "./ConfirmDialog";
@@ -14,6 +14,7 @@ function EditTaskModal({ task, onClose, onUpdated }) {
   const [dueDate, setDueDate] = useState(task.dueDate.split("T")[0]);
   const [description, setDescription] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const [confirmEdit, setConfirmEdit] = useState(false);
 
   useEffect(() => {
@@ -29,6 +30,7 @@ function EditTaskModal({ task, onClose, onUpdated }) {
   }, []);
 
   async function handleUpdate() {
+    setLoading(true);
     try {
       await axiosInstance.put(`/tasks/${task.id}`, {
         title,
@@ -41,6 +43,7 @@ function EditTaskModal({ task, onClose, onUpdated }) {
       onClose();
     } catch (err) {
       setError("Görev güncellenemedi.");
+      setLoading(false);
     }
   }
 
@@ -84,9 +87,7 @@ function EditTaskModal({ task, onClose, onUpdated }) {
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
               fullWidth
-              slotProps={{
-                inputLabel: { shrink: true },
-              }}
+              slotProps={{ inputLabel: { shrink: true } }}
             />
             <TextField
               label="Açıklama"
@@ -97,11 +98,21 @@ function EditTaskModal({ task, onClose, onUpdated }) {
               rows={3}
               inputProps={{ maxLength: 100 }}
             />
+            {error && <Box sx={{ color: "error.main" }}>{error}</Box>}
           </Box>
         </DialogContent>
         <DialogActions>
-          <Button onClick={onClose} color="inherit">İptal</Button>
-          <Button onClick={() => setConfirmEdit(true)} variant="contained">Düzenle</Button>
+          <Button onClick={onClose} color="inherit" disabled={loading}>
+            İptal
+          </Button>
+          <Button
+            onClick={() => setConfirmEdit(true)}
+            variant="contained"
+            disabled={loading}
+            startIcon={loading ? <CircularProgress size={16} color="inherit" /> : null}
+          >
+            {loading ? "Güncelleniyor..." : "Düzenle"}
+          </Button>
         </DialogActions>
       </Dialog>
 

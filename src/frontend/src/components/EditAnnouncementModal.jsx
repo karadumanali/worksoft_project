@@ -1,7 +1,7 @@
 import { useState } from "react";
 import {
   Dialog, DialogTitle, DialogContent, DialogActions,
-  Button, TextField, Box, FormControlLabel, Checkbox
+  Button, TextField, Box, FormControlLabel, Checkbox, CircularProgress
 } from "@mui/material";
 import axiosInstance from "../api/axiosInstance";
 import ConfirmDialog from "./ConfirmDialog";
@@ -11,9 +11,11 @@ function EditAnnouncementModal({ announcement, onClose, onUpdated }) {
   const [content, setContent] = useState(announcement.content);
   const [isActive, setIsActive] = useState(announcement.isActive);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const [confirmEdit, setConfirmEdit] = useState(false);
 
   async function handleUpdate() {
+    setLoading(true);
     try {
       await axiosInstance.put(`/announcements/${announcement.id}`, {
         title,
@@ -24,6 +26,7 @@ function EditAnnouncementModal({ announcement, onClose, onUpdated }) {
       onClose();
     } catch (err) {
       setError("Duyuru güncellenemedi.");
+      setLoading(false);
     }
   }
 
@@ -57,11 +60,21 @@ function EditAnnouncementModal({ announcement, onClose, onUpdated }) {
               }
               label="Aktif"
             />
+            {error && <Box sx={{ color: "error.main" }}>{error}</Box>}
           </Box>
         </DialogContent>
         <DialogActions>
-          <Button onClick={onClose} color="inherit">İptal</Button>
-          <Button onClick={() => setConfirmEdit(true)} variant="contained">Düzenle</Button>
+          <Button onClick={onClose} color="inherit" disabled={loading}>
+            İptal
+          </Button>
+          <Button
+            onClick={() => setConfirmEdit(true)}
+            variant="contained"
+            disabled={loading}
+            startIcon={loading ? <CircularProgress size={16} color="inherit" /> : null}
+          >
+            {loading ? "Güncelleniyor..." : "Düzenle"}
+          </Button>
         </DialogActions>
       </Dialog>
 

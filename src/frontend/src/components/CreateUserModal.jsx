@@ -1,7 +1,7 @@
 import { useState } from "react";
 import {
   Dialog, DialogTitle, DialogContent, DialogActions,
-  Button, TextField, MenuItem, Box, FormControlLabel, Switch
+  Button, TextField, MenuItem, Box, FormControlLabel, Switch, CircularProgress
 } from "@mui/material";
 import axiosInstance from "../api/axiosInstance";
 import ConfirmDialog from "./ConfirmDialog";
@@ -19,9 +19,11 @@ function CreateUserModal({ onClose, onCreated }) {
   const [roleId, setRoleId] = useState(3);
   const [isActive, setIsActive] = useState(true);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const [confirmCreate, setConfirmCreate] = useState(false);
 
   async function handleCreate() {
+    setLoading(true);
     try {
       await axiosInstance.post("/users", {
         fullName,
@@ -34,6 +36,7 @@ function CreateUserModal({ onClose, onCreated }) {
       onClose();
     } catch (err) {
       setError(err.response?.data?.message || "Kullanıcı oluşturulamadı.");
+      setLoading(false);
     }
   }
 
@@ -84,12 +87,21 @@ function CreateUserModal({ onClose, onCreated }) {
               }
               label="Kullanıcı hemen aktif edilsin mi?"
             />
+            {error && <Box sx={{ color: "error.main" }}>{error}</Box>}
           </Box>
-          {error && <Box sx={{ color: "error.main", mt: 1 }}>{error}</Box>}
         </DialogContent>
         <DialogActions>
-          <Button onClick={onClose} color="inherit">İptal</Button>
-          <Button onClick={() => setConfirmCreate(true)} variant="contained">Oluştur</Button>
+          <Button onClick={onClose} color="inherit" disabled={loading}>
+            İptal
+          </Button>
+          <Button
+            onClick={() => setConfirmCreate(true)}
+            variant="contained"
+            disabled={loading}
+            startIcon={loading ? <CircularProgress size={16} color="inherit" /> : null}
+          >
+            {loading ? "Oluşturuluyor..." : "Oluştur"}
+          </Button>
         </DialogActions>
       </Dialog>
 

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import {
   Dialog, DialogTitle, DialogContent, DialogActions,
-  Button, TextField, MenuItem, Box, FormControlLabel, Checkbox, Typography
+  Button, TextField, MenuItem, Box, FormControlLabel, Checkbox, Typography, CircularProgress
 } from "@mui/material";
 import axiosInstance from "../api/axiosInstance";
 import ConfirmDialog from "./ConfirmDialog";
@@ -20,9 +20,11 @@ function EditUserModal({ targetUser, onClose, onUpdated }) {
   const [isActive, setIsActive] = useState(targetUser.isActive);
   const [resetPassword, setResetPassword] = useState(false);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const [confirmEdit, setConfirmEdit] = useState(false);
 
   async function handleUpdate() {
+    setLoading(true);
     try {
       await axiosInstance.put(`/users/${targetUser.id}`, {
         email,
@@ -34,6 +36,7 @@ function EditUserModal({ targetUser, onClose, onUpdated }) {
       onClose();
     } catch (err) {
       setError("Kullanıcı güncellenemedi.");
+      setLoading(false);
     }
   }
 
@@ -75,12 +78,21 @@ function EditUserModal({ targetUser, onClose, onUpdated }) {
               }
               label="Kullanıcının Parolasını Sıfırla (Geçici parola e-posta ile iletilir)"
             />
+            {error && <Box sx={{ color: "error.main" }}>{error}</Box>}
           </Box>
-          {error && <Box sx={{ color: "error.main", mt: 1 }}>{error}</Box>}
         </DialogContent>
         <DialogActions>
-          <Button onClick={onClose} color="inherit">İptal</Button>
-          <Button onClick={() => setConfirmEdit(true)} variant="contained">Düzenle</Button>
+          <Button onClick={onClose} color="inherit" disabled={loading}>
+            İptal
+          </Button>
+          <Button
+            onClick={() => setConfirmEdit(true)}
+            variant="contained"
+            disabled={loading}
+            startIcon={loading ? <CircularProgress size={16} color="inherit" /> : null}
+          >
+            {loading ? "Güncelleniyor..." : "Düzenle"}
+          </Button>
         </DialogActions>
       </Dialog>
 

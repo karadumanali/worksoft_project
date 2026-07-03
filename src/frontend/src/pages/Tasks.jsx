@@ -7,6 +7,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import axiosInstance from "../api/axiosInstance";
 import { useAuth } from "../context/AuthContext";
+import { useSnackbar } from "../context/SnackbarContext";
 import CreateTaskModal from "../components/CreateTaskModal";
 import EditTaskModal from "../components/EditTaskModal";
 import ConfirmDialog from "../components/ConfirmDialog";
@@ -18,6 +19,7 @@ function Tasks() {
   const [editingTask, setEditingTask] = useState(null);
   const [deletingTask, setDeletingTask] = useState(null);
   const { user } = useAuth();
+  const { showSnackbar } = useSnackbar();
 
   const isPersonel = user.role === "Personel";
 
@@ -39,8 +41,9 @@ function Tasks() {
     try {
       await axiosInstance.put(`/tasks/${taskId}/status`, { status: newStatus });
       fetchTasks();
+      showSnackbar("Görev durumu güncellendi.");
     } catch (err) {
-      setError("Durum güncellenemedi.");
+      showSnackbar("Durum güncellenemedi.", "error");
     }
   }
 
@@ -58,6 +61,11 @@ function Tasks() {
       </Box>
 
       <Paper>
+        {tasks.length === 0 ? (
+              <Box sx={{ p: 4, textAlign: "center", color: "text.secondary" }}>
+                Henüz hiç görev oluşturulmamış.
+              </Box>
+            ) : (
         <Table>
           <TableHead>
             <TableRow>
@@ -101,12 +109,16 @@ function Tasks() {
             ))}
           </TableBody>
         </Table>
+        )}
       </Paper>
 
       {showModal && (
         <CreateTaskModal
           onClose={() => setShowModal(false)}
-          onCreated={fetchTasks}
+          onCreated={() => {
+            fetchTasks();
+            showSnackbar("Görev başarıyla oluşturuldu.");
+          }}
         />
       )}
 
@@ -114,7 +126,10 @@ function Tasks() {
         <EditTaskModal
           task={editingTask}
           onClose={() => setEditingTask(null)}
-          onUpdated={fetchTasks}
+          onUpdated={() => {
+            fetchTasks();
+            showSnackbar("Görev başarıyla güncellendi.");
+          }}
         />
       )}
 
@@ -125,8 +140,9 @@ function Tasks() {
             try {
               await axiosInstance.delete(`/tasks/${deletingTask.id}`);
               fetchTasks();
+              showSnackbar("Görev başarıyla silindi.");
             } catch (err) {
-              setError("Görev silinemedi.");
+              showSnackbar("Görev silinemedi.", "error");
             }
             setDeletingTask(null);
           }}

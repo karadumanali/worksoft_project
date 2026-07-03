@@ -1,7 +1,7 @@
 import { useState } from "react";
 import {
   Dialog, DialogTitle, DialogContent, DialogActions,
-  Button, TextField, Box, FormControlLabel, Checkbox
+  Button, TextField, Box, FormControlLabel, Checkbox, CircularProgress
 } from "@mui/material";
 import axiosInstance from "../api/axiosInstance";
 import ConfirmDialog from "./ConfirmDialog";
@@ -11,10 +11,12 @@ function CreateAnnouncementModal({ onClose, onCreated }) {
   const [content, setContent] = useState("");
   const [sendEmailNotification, setSendEmailNotification] = useState(false);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const [confirmCreate, setConfirmCreate] = useState(false);
   const [confirmCancel, setConfirmCancel] = useState(false);
 
   async function handleCreate() {
+    setLoading(true);
     try {
       await axiosInstance.post("/announcements", {
         title,
@@ -26,6 +28,7 @@ function CreateAnnouncementModal({ onClose, onCreated }) {
       onClose();
     } catch (err) {
       setError("Duyuru oluşturulamadı.");
+      setLoading(false);
     }
   }
 
@@ -59,11 +62,21 @@ function CreateAnnouncementModal({ onClose, onCreated }) {
               }
               label="Yayınlandığında tüm personellere otomatik e-posta bildirimi at"
             />
+            {error && <Box sx={{ color: "error.main" }}>{error}</Box>}
           </Box>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setConfirmCancel(true)} color="inherit">İptal</Button>
-          <Button onClick={() => setConfirmCreate(true)} variant="contained">Oluştur</Button>
+          <Button onClick={() => setConfirmCancel(true)} color="inherit" disabled={loading}>
+            İptal
+          </Button>
+          <Button
+            onClick={() => setConfirmCreate(true)}
+            variant="contained"
+            disabled={loading}
+            startIcon={loading ? <CircularProgress size={16} color="inherit" /> : null}
+          >
+            {loading ? "Yayınlanıyor..." : "Oluştur"}
+          </Button>
         </DialogActions>
       </Dialog>
 
