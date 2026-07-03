@@ -5,13 +5,13 @@ import App from "./App.jsx";
 
 const theme = createTheme({
   palette: {
-    mode: "dark",
+    mode: "light",
     primary: {
       main: "#1976d2",
     },
     background: {
-      default: "#0f1724",
-      paper: "#1a2332",
+      default: "#f0f2f5",
+      paper: "#ffffff",
     },
   },
 });

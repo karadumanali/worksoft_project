@@ -60,13 +60,13 @@ function Tasks() {
         )}
       </Box>
 
-      <Paper>
+      <Paper sx={{ width: "100%", overflowX: "auto" }}>
         {tasks.length === 0 ? (
               <Box sx={{ p: 4, textAlign: "center", color: "text.secondary" }}>
                 Henüz hiç görev oluşturulmamış.
               </Box>
             ) : (
-        <Table>
+        <Table sx={{ "& td, & th": { verticalAlign: "middle" } }}>
           <TableHead>
             <TableRow>
               <TableCell><strong>Görev Başlığı</strong></TableCell>
@@ -74,7 +74,7 @@ function Tasks() {
               <TableCell><strong>Öncelik</strong></TableCell>
               <TableCell><strong>Bitiş Tarihi</strong></TableCell>
               <TableCell><strong>Durum</strong></TableCell>
-              {!isPersonel && <TableCell><strong>İşlemler</strong></TableCell>}
+              {!isPersonel && <TableCell sx={{ width: 100 }}><strong>İşlemler</strong></TableCell>}
             </TableRow>
           </TableHead>
           <TableBody>
@@ -97,12 +97,36 @@ function Tasks() {
                 </TableCell>
                 {!isPersonel && (
                   <TableCell>
-                    <IconButton color="primary" onClick={() => setEditingTask(task)}>
-                      <EditIcon />
-                    </IconButton>
-                    <IconButton color="error" onClick={() => setDeletingTask(task)}>
-                      <DeleteIcon />
-                    </IconButton>
+                    <Box sx={{ display: "flex", gap: 1 }}>
+                      <IconButton
+                        size="small"
+                        onClick={() => setEditingTask(task)}
+                        sx={{
+                          bgcolor: "#2563EB",
+                          color: "white",
+                          borderRadius: 2,
+                          width: 32,
+                          height: 32,
+                          "&:hover": { bgcolor: "#1d4ed8" },
+                        }}
+                      >
+                        <EditIcon sx={{ fontSize: 16 }} />
+                      </IconButton>
+                      <IconButton
+                        size="small"
+                        onClick={() => setDeletingTask(task)}
+                        sx={{
+                          bgcolor: "#fee2e2",
+                          color: "#dc2626",
+                          borderRadius: 2,
+                          width: 32,
+                          height: 32,
+                          "&:hover": { bgcolor: "#fecaca" },
+                        }}
+                      >
+                        <DeleteIcon sx={{ fontSize: 16 }} />
+                      </IconButton>
+                    </Box>
                   </TableCell>
                 )}
               </TableRow>

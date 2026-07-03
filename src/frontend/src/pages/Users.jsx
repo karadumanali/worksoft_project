@@ -40,20 +40,20 @@ function Users() {
         </Button>
       </Box>
 
-      <Paper>
+      <Paper sx={{ width: "100%", overflowX: "auto" }}>
         {users.length === 0 ? (
           <Box sx={{ p: 4, textAlign: "center", color: "text.secondary" }}>
             Henüz hiç kullanıcı eklenmemiş.
           </Box>
         ) : (
-        <Table>
+        <Table sx={{ "& td, & th": { verticalAlign: "middle" } }}>
           <TableHead>
             <TableRow>
               <TableCell><strong>Kullanıcı Bilgisi</strong></TableCell>
               <TableCell><strong>Rolü</strong></TableCell>
               <TableCell><strong>Kayıt Tarihi</strong></TableCell>
               <TableCell><strong>Hesap Durumu</strong></TableCell>
-              <TableCell><strong>İşlemler</strong></TableCell>
+              <TableCell sx={{ width: 100 }}><strong>İşlemler</strong></TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -73,8 +73,19 @@ function Users() {
                   />
                 </TableCell>
                 <TableCell>
-                  <IconButton color="primary" onClick={() => setEditingUser(u)}>
-                    <EditIcon />
+                  <IconButton
+                    size="small"
+                    onClick={() => setEditingUser(u)}
+                    sx={{
+                      bgcolor: "#2563EB",
+                      color: "white",
+                      borderRadius: 2,
+                      width: 32,
+                      height: 32,
+                      "&:hover": { bgcolor: "#1d4ed8" },
+                    }}
+                  >
+                    <EditIcon sx={{ fontSize: 16 }} />
                   </IconButton>
                 </TableCell>
               </TableRow>

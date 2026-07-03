@@ -49,20 +49,20 @@ function Announcements() {
         )}
       </Box>
 
-      <Paper>
+      <Paper sx={{ width: "100%", overflowX: "auto" }}>
         {announcements.length === 0 ? (
           <Box sx={{ p: 4, textAlign: "center", color: "text.secondary" }}>
             Henüz hiç duyuru yayınlanmamış.
           </Box>
         ) : (
-        <Table>
+        <Table sx={{ "& td, & th": { verticalAlign: "middle" } }}>
           <TableHead>
             <TableRow>
               <TableCell><strong>Duyuru Başlığı</strong></TableCell>
               <TableCell><strong>İçerik Özeti</strong></TableCell>
               <TableCell><strong>Yayın Tarihi</strong></TableCell>
               <TableCell><strong>Durum</strong></TableCell>
-              {isAdmin && <TableCell><strong>İşlemler</strong></TableCell>}
+              {isAdmin && <TableCell sx={{ width: 100 }}><strong>İşlemler</strong></TableCell>}
             </TableRow>
           </TableHead>
           <TableBody>
@@ -81,14 +81,38 @@ function Announcements() {
                   />
                 </TableCell>
                 {isAdmin && (
-                  <TableCell>
-                    <IconButton color="primary" onClick={() => setEditingAnnouncement(a)}>
-                      <EditIcon />
+                <TableCell>
+                  <Box sx={{ display: "flex", gap: 1 }}>
+                    <IconButton
+                      size="small"
+                      onClick={() => setEditingAnnouncement(a)}
+                      sx={{
+                        bgcolor: "#2563EB",
+                        color: "white",
+                        borderRadius: 2,
+                        width: 32,
+                        height: 32,
+                        "&:hover": { bgcolor: "#1d4ed8" },
+                      }}
+                    >
+                      <EditIcon sx={{ fontSize: 16 }} />
                     </IconButton>
-                    <IconButton color="error" onClick={() => setDeletingAnnouncement(a)}>
-                      <DeleteIcon />
+                    <IconButton
+                      size="small"
+                      onClick={() => setDeletingAnnouncement(a)}
+                      sx={{
+                        bgcolor: "#fee2e2",
+                        color: "#dc2626",
+                        borderRadius: 2,
+                        width: 32,
+                        height: 32,
+                        "&:hover": { bgcolor: "#fecaca" },
+                      }}
+                    >
+                      <DeleteIcon sx={{ fontSize: 16 }} />
                     </IconButton>
-                  </TableCell>
+                  </Box>
+                </TableCell>
                 )}
               </TableRow>
             ))}

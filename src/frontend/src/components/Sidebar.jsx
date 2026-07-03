@@ -4,7 +4,7 @@ import {
   Button, Divider, IconButton, Tooltip
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
-import { Link, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import LogoCropModal from "./LogoCropModal";
 
@@ -55,7 +55,7 @@ function Sidebar() {
       sx={{
         width: 220,
         minHeight: "100vh",
-        bgcolor: "background.paper",
+        bgcolor: "#334155",
         display: "flex",
         flexDirection: "column",
         justifyContent: "space-between",
@@ -82,7 +82,7 @@ function Sidebar() {
                       position: "absolute",
                       top: -8,
                       right: -8,
-                      bgcolor: "background.paper",
+                      bgcolor: "#334155",
                       border: "1px solid",
                       borderColor: "divider",
                       width: 24,
@@ -128,7 +128,20 @@ function Sidebar() {
             .filter((item) => item.show)
             .map((item) => (
               <ListItem key={item.path} disablePadding>
-                <ListItemButton component={Link} to={item.path}>
+                <ListItemButton
+                          component={NavLink}
+                          to={item.path}
+                          sx={{
+                            color: "white",
+                            "&.active": {
+                              bgcolor: "#2563EB",
+                              fontWeight: "bold",
+                            },
+                            "&:hover": {
+                              bgcolor: "rgba(255,255,255,0.1)",
+                            },
+                          }}
+                        >
                   <ListItemText primary={item.label} />
                 </ListItemButton>
               </ListItem>
@@ -137,7 +150,7 @@ function Sidebar() {
       </Box>
 
       <Box sx={{ px: 2 }}>
-        <Divider sx={{ mb: 2 }} />
+        <Divider sx={{ mb: 2, borderColor: "rgba(255,255,255,0.15)" }} />
         <Typography variant="body2" sx={{ mb: 1, color: "white" }}>
           {user.fullName}
         </Typography>
