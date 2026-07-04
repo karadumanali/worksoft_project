@@ -33,6 +33,10 @@ public class AuthController : ControllerBase
         if (!isPasswordValid)
             return Unauthorized(new { isSuccess = false, message = "Geçersiz email veya şifre." });
 
+
+        await _userRepository.UpdateLastLoginAsync(user.Id);
+        await _userRepository.SaveChangesAsync();
+
         var token = GenerateJwtToken(user.Id, user.FullName, user.Role.Name);
 
         return Ok(new

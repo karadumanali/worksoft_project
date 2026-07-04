@@ -45,6 +45,28 @@ public class UserRepository : IUserRepository
         _context.Users.Update(user);
     }
 
+
+    public async Task UpdateLastLoginAsync(int userId)
+{
+    var user = await _context.Users.FindAsync(userId);
+    if (user != null)
+    {
+        user.LastLoginDate = DateTime.UtcNow;
+        _context.Users.Update(user);
+    }
+}
+
+    public async Task UpdateProfileAsync(int userId, string fullName)
+    {
+        var user = await _context.Users.FindAsync(userId);
+        if (user != null)
+        {
+            user.FullName = fullName;
+            _context.Users.Update(user);
+        }
+    }
+
+
     public async Task SaveChangesAsync()
     {
         await _context.SaveChangesAsync();

@@ -4,6 +4,7 @@ import {
   Button, Divider, IconButton, Tooltip
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import LogoCropModal from "./LogoCropModal";
@@ -151,24 +152,40 @@ function Sidebar() {
       </Box>
 
       <Box sx={{ px: 2 }}>
-        <Divider sx={{ mb: 2, borderColor: "rgba(255,255,255,0.15)" }} />
-        <Typography variant="body2" sx={{ mb: 1, color: "white" }}>
-          {user.fullName}
-        </Typography>
-        <Button
-          variant="contained"
-          size="small"
-          fullWidth
-          onClick={handleLogout}
-          sx={{
-            bgcolor: "white",
-            color: "#334155",
-            "&:hover": { bgcolor: "#f1f5f9" },
-          }}
-        >
-          Çıkış Yap
-        </Button>
-      </Box>
+          <Divider sx={{ mb: 2, borderColor: "rgba(255,255,255,0.15)" }} />
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 1,
+              mb: 1,
+              cursor: "pointer",
+              borderRadius: 1,
+              px: 1,
+              py: 0.5,
+              "&:hover": { bgcolor: "rgba(255,255,255,0.1)" },
+            }}
+            onClick={() => navigate("/profile")}
+          >
+            <AccountCircleIcon sx={{ color: "rgba(255,255,255,0.7)", fontSize: 28 }} />
+            <Typography variant="body2" sx={{ color: "white" }}>
+              {user.fullName}
+            </Typography>
+          </Box>
+          <Button
+            variant="contained"
+            size="small"
+            fullWidth
+            onClick={handleLogout}
+            sx={{
+              bgcolor: "white",
+              color: "#334155",
+              "&:hover": { bgcolor: "#f1f5f9" },
+            }}
+          >
+            Çıkış Yap
+          </Button>
+        </Box>
 
       {cropSrc && (
         <LogoCropModal

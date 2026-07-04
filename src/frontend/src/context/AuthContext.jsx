@@ -13,14 +13,9 @@ export function AuthProvider({ children }) {
       try {
         const decoded = jwtDecode(token);
         setUser({
-          userId: decoded[
-            "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"
-          ],
-          fullName:
-            decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"],
-          role: decoded[
-            "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
-          ],
+          userId: decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"],
+          fullName: decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"],
+          role: decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"],
         });
       } catch {
         localStorage.removeItem("token");
@@ -39,8 +34,12 @@ export function AuthProvider({ children }) {
     setUser(null);
   }
 
+  function updateUser(fields) {
+    setUser((prev) => ({ ...prev, ...fields }));
+  }
+
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading }}>
+    <AuthContext.Provider value={{ user, login, logout, updateUser, loading }}>
       {children}
     </AuthContext.Provider>
   );

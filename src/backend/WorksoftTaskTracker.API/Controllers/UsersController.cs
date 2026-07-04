@@ -4,6 +4,9 @@ using System.Security.Claims;
 using WorksoftTaskTracker.Application.DTOs.User;
 using WorksoftTaskTracker.Application.Interfaces;
 using WorksoftTaskTracker.Domain.Entities;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Text;
 
 namespace WorksoftTaskTracker.API.Controllers;
 
@@ -14,9 +17,12 @@ public class UsersController : ControllerBase
 {
     private readonly IUserRepository _userRepository;
 
-    public UsersController(IUserRepository userRepository)
+    private readonly IConfiguration _configuration;
+
+    public UsersController(IUserRepository userRepository, IConfiguration configuration)
     {
         _userRepository = userRepository;
+        _configuration = configuration;
     }
 
     [HttpGet]
@@ -82,4 +88,100 @@ public class UsersController : ControllerBase
 
         return Ok(new { isSuccess = true, message = "Kullanıcı başarıyla güncellendi." });
     }
+
+
+
+    [HttpGet("profile")]
+[Authorize]
+public async Task<IActionResult> GetProfile()
+{
+    var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+    if (!int.TryParse(userIdStr, out var userId))
+        return Unauthorized(new { isSuccess = false, message = "Geçersiz token." });
+
+    var user = await _userRepository.GetByIdAsync(userId);
+    if (user == null)
+        return NotFound(new { isSuccess = false, message = "Kullanıcı bulunamadı." });
+
+    var profile = new ProfileDto
+    {
+        Id = user.Id,
+        FullName = user.FullName,
+        Email = user.Email,
+        Role = user.Role.Name,
+        CreatedDate = user.CreatedDate,
+        LastLoginDate = user.LastLoginDate
+    };
+
+    return Ok(new { isSuccess = true, data = profile });
+}
+
+[HttpPut("profile")]
+[Authorize]
+public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileDto request)
+{
+    var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+    if (!int.TryParse(userIdStr, out var userId))
+        return Unauthorized(new { isSuccess = false, message = "Geçersiz token." });
+
+    await _userRepository.UpdateProfileAsync(userId, request.FullName);
+    await _userRepository.SaveChangesAsync();
+
+    // Güncel kullanıcıyı çek ve yeni token üret
+    var user = await _userRepository.GetByIdAsync(userId);
+    var newToken = GenerateJwtToken(user!.Id, user.FullName, user.Role.Name);
+
+    return Ok(new { isSuccess = true, message = "Profil başarıyla güncellendi.", token = newToken });
+}
+
+[HttpPut("profile/password")]
+[Authorize]
+public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto request)
+{
+    var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+    if (!int.TryParse(userIdStr, out var userId))
+        return Unauthorized(new { isSuccess = false, message = "Geçersiz token." });
+
+    var user = await _userRepository.GetByIdAsync(userId);
+    if (user == null)
+        return NotFound(new { isSuccess = false, message = "Kullanıcı bulunamadı." });
+
+    var isCurrentPasswordValid = BCrypt.Net.BCrypt.Verify(request.CurrentPassword, user.PasswordHash);
+    if (!isCurrentPasswordValid)
+        return BadRequest(new { isSuccess = false, message = "Mevcut şifre yanlış." });
+
+    user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
+    await _userRepository.UpdateAsync(user);
+    await _userRepository.SaveChangesAsync();
+
+    return Ok(new { isSuccess = true, message = "Şifre başarıyla değiştirildi." });
+}
+
+
+
+
+private string GenerateJwtToken(int userId, string fullName, string role)
+{
+    var key = new SymmetricSecurityKey(
+        Encoding.UTF8.GetBytes(_configuration["Jwt:SecretKey"]!));
+    var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+    var claims = new[]
+    {
+        new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
+        new Claim(ClaimTypes.Name, fullName),
+        new Claim(ClaimTypes.Role, role)
+    };
+
+    var token = new JwtSecurityToken(
+        issuer: _configuration["Jwt:Issuer"],
+        audience: _configuration["Jwt:Audience"],
+        claims: claims,
+        expires: DateTime.UtcNow.AddMinutes(
+            int.Parse(_configuration["Jwt:ExpireMinutes"]!)),
+        signingCredentials: credentials
+    );
+
+    return new JwtSecurityTokenHandler().WriteToken(token);
+}
 }
