@@ -17,6 +17,7 @@ function CreateTaskModal({ onClose, onCreated }) {
   const [loading, setLoading] = useState(false);
   const [confirmCreate, setConfirmCreate] = useState(false);
   const [confirmCancel, setConfirmCancel] = useState(false);
+  const [validationError, setValidationError] = useState("");
 
   useEffect(() => {
     async function fetchUsers() {
@@ -100,6 +101,7 @@ function CreateTaskModal({ onClose, onCreated }) {
               rows={3}
               inputProps={{ maxLength: 100 }}
             />
+            {validationError && <Box sx={{ color: "error.main" }}>{validationError}</Box>}
             {error && <Box sx={{ color: "error.main" }}>{error}</Box>}
           </Box>
         </DialogContent>
@@ -108,7 +110,22 @@ function CreateTaskModal({ onClose, onCreated }) {
             İptal
           </Button>
           <Button
-            onClick={() => setConfirmCreate(true)}
+            onClick={() => {
+              if (!title.trim()) {
+                setValidationError("Görev başlığı zorunludur.");
+                return;
+              }
+              if (!assignedUserId) {
+                setValidationError("Atanan kişi seçilmelidir.");
+                return;
+              }
+              if (!dueDate) {
+                setValidationError("Bitiş tarihi zorunludur.");
+                return;
+              }
+              setValidationError("");
+              setConfirmCreate(true);
+            }}
             variant="contained"
             disabled={loading}
             startIcon={loading ? <CircularProgress size={16} color="inherit" /> : null}

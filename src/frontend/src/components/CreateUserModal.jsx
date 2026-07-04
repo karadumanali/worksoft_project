@@ -21,6 +21,7 @@ function CreateUserModal({ onClose, onCreated }) {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [confirmCreate, setConfirmCreate] = useState(false);
+  const [validationError, setValidationError] = useState("");
 
   async function handleCreate() {
     setLoading(true);
@@ -87,6 +88,7 @@ function CreateUserModal({ onClose, onCreated }) {
               }
               label="Kullanıcı hemen aktif edilsin mi?"
             />
+            {validationError && <Box sx={{ color: "error.main" }}>{validationError}</Box>}
             {error && <Box sx={{ color: "error.main" }}>{error}</Box>}
           </Box>
         </DialogContent>
@@ -95,7 +97,22 @@ function CreateUserModal({ onClose, onCreated }) {
             İptal
           </Button>
           <Button
-            onClick={() => setConfirmCreate(true)}
+            onClick={() => {
+              if (!fullName.trim()) {
+                setValidationError("Ad-Soyad zorunludur.");
+                return;
+              }
+              if (!email.trim()) {
+                setValidationError("E-mail zorunludur.");
+                return;
+              }
+              if (!tempPassword.trim()) {
+                setValidationError("Geçici parola zorunludur.");
+                return;
+              }
+              setValidationError("");
+              setConfirmCreate(true);
+            }}
             variant="contained"
             disabled={loading}
             startIcon={loading ? <CircularProgress size={16} color="inherit" /> : null}

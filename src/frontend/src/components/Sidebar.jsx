@@ -79,16 +79,17 @@ function Sidebar() {
                     size="small"
                     onClick={() => fileInputRef.current.click()}
                     sx={{
-                      position: "absolute",
-                      top: -8,
-                      right: -8,
-                      bgcolor: "#334155",
-                      border: "1px solid",
-                      borderColor: "divider",
-                      width: 24,
-                      height: 24,
-                      "&:hover": { bgcolor: "action.hover" },
-                    }}
+                        position: "absolute",
+                        top: -8,
+                        right: -8,
+                        bgcolor: "white",
+                        border: "1px solid",
+                        borderColor: "#334155",
+                        width: 24,
+                        height: 24,
+                        color: "#334155",
+                        "&:hover": { bgcolor: "#f1f5f9" },
+                      }}
                   >
                     <EditIcon sx={{ fontSize: 14 }} />
                   </IconButton>
@@ -154,7 +155,17 @@ function Sidebar() {
         <Typography variant="body2" sx={{ mb: 1, color: "white" }}>
           {user.fullName}
         </Typography>
-        <Button variant="outlined" size="small" fullWidth onClick={handleLogout}>
+        <Button
+          variant="contained"
+          size="small"
+          fullWidth
+          onClick={handleLogout}
+          sx={{
+            bgcolor: "white",
+            color: "#334155",
+            "&:hover": { bgcolor: "#f1f5f9" },
+          }}
+        >
           Çıkış Yap
         </Button>
       </Box>

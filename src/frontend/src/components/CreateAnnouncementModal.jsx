@@ -14,6 +14,7 @@ function CreateAnnouncementModal({ onClose, onCreated }) {
   const [loading, setLoading] = useState(false);
   const [confirmCreate, setConfirmCreate] = useState(false);
   const [confirmCancel, setConfirmCancel] = useState(false);
+  const [validationError, setValidationError] = useState("");
 
   async function handleCreate() {
     setLoading(true);
@@ -62,6 +63,7 @@ function CreateAnnouncementModal({ onClose, onCreated }) {
               }
               label="Yayınlandığında tüm personellere otomatik e-posta bildirimi at"
             />
+            {validationError && <Box sx={{ color: "error.main" }}>{validationError}</Box>}
             {error && <Box sx={{ color: "error.main" }}>{error}</Box>}
           </Box>
         </DialogContent>
@@ -70,7 +72,18 @@ function CreateAnnouncementModal({ onClose, onCreated }) {
             İptal
           </Button>
           <Button
-            onClick={() => setConfirmCreate(true)}
+            onClick={() => {
+              if (!title.trim()) {
+                setValidationError("Duyuru başlığı zorunludur.");
+                return;
+              }
+              if (!content.trim()) {
+                setValidationError("Duyuru içeriği zorunludur.");
+                return;
+              }
+              setValidationError("");
+              setConfirmCreate(true);
+            }}
             variant="contained"
             disabled={loading}
             startIcon={loading ? <CircularProgress size={16} color="inherit" /> : null}
