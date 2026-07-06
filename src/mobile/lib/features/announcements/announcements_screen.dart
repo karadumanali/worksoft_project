@@ -62,6 +62,178 @@ class _AnnouncementsScreenState extends State<AnnouncementsScreen> {
     }
   }
 
+  Future<void> _confirmDelete(
+    BuildContext context,
+    Map<String, dynamic> ann,
+  ) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Duyuruyu Sil'),
+        content: Text(
+          '"${ann['title']}" duyurusunu silmek istediğinize emin misiniz?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('İptal'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: Colors.red),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Sil'),
+          ),
+        ],
+      ),
+    );
+    if (confirm != true) return;
+    try {
+      await _api.dio.delete('/announcements/${ann['id']}');
+      _fetchAnnouncements();
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Duyuru silindi')));
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Duyuru silinemedi')));
+      }
+    }
+  }
+
+  void _showEditModal(BuildContext context, Map<String, dynamic> ann) {
+    final titleController = TextEditingController(text: ann['title']);
+    final contentController = TextEditingController(text: ann['content'] ?? '');
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setModalState) => Padding(
+          padding: EdgeInsets.only(
+            left: 16,
+            right: 16,
+            top: 16,
+            bottom: MediaQuery.of(ctx).viewInsets.bottom + 16,
+          ),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Duyuruyu Düzenle',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () async {
+                        if (await _showCancelConfirm(ctx) && ctx.mounted) {
+                          Navigator.pop(ctx);
+                        }
+                      },
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: titleController,
+                  decoration: const InputDecoration(
+                    labelText: 'Duyuru Başlığı',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: contentController,
+                  decoration: const InputDecoration(
+                    labelText: 'İçerik',
+                    border: OutlineInputBorder(),
+                  ),
+                  maxLines: 4,
+                ),
+                const SizedBox(height: 16),
+                OutlinedButton(
+                  onPressed: () async {
+                    if (await _showCancelConfirm(ctx) && ctx.mounted) {
+                      Navigator.pop(ctx);
+                    }
+                  },
+                  child: const Text('İptal'),
+                ),
+                const SizedBox(height: 8),
+                FilledButton(
+                  onPressed: () async {
+                    if (titleController.text.isEmpty ||
+                        contentController.text.isEmpty) {
+                      ScaffoldMessenger.of(ctx).showSnackBar(
+                        const SnackBar(content: Text('Tüm alanları doldurun')),
+                      );
+                      return;
+                    }
+                    final confirm = await showDialog<bool>(
+                      context: ctx,
+                      builder: (c) => AlertDialog(
+                        title: const Text('Duyuruyu Güncelle'),
+                        content: const Text(
+                          'Değişiklikleri kaydetmek istediğinize emin misiniz?',
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(c, false),
+                            child: const Text('İptal'),
+                          ),
+                          FilledButton(
+                            onPressed: () => Navigator.pop(c, true),
+                            child: const Text('Evet'),
+                          ),
+                        ],
+                      ),
+                    );
+                    if (confirm != true) return;
+                    try {
+                      await _api.dio.put(
+                        '/announcements/${ann['id']}',
+                        data: {
+                          'title': titleController.text,
+                          'content': contentController.text,
+                          'isActive': ann['isActive'],
+                        },
+                      );
+                      if (ctx.mounted) Navigator.pop(ctx);
+                      _fetchAnnouncements();
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Duyuru güncellendi')),
+                        );
+                      }
+                    } catch (e) {
+                      if (ctx.mounted) {
+                        ScaffoldMessenger.of(ctx).showSnackBar(
+                          const SnackBar(content: Text('Güncelleme başarısız')),
+                        );
+                      }
+                    }
+                  },
+                  child: const Text('Güncelle'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Future<bool> _showCancelConfirm(BuildContext ctx) async {
     final confirm = await showDialog<bool>(
       context: ctx,
@@ -144,10 +316,30 @@ class _AnnouncementsScreenState extends State<AnnouncementsScreen> {
                       ),
                       trailing: isPersonel
                           ? null
-                          : Switch(
-                              value: isActive,
-                              onChanged: (_) =>
-                                  _toggleStatus(ann['id'], isActive),
+                          : Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Switch(
+                                  value: isActive,
+                                  onChanged: (_) =>
+                                      _toggleStatus(ann['id'], isActive),
+                                ),
+                                IconButton(
+                                  icon: const Icon(
+                                    Icons.edit_outlined,
+                                    size: 20,
+                                  ),
+                                  onPressed: () => _showEditModal(context, ann),
+                                ),
+                                IconButton(
+                                  icon: const Icon(
+                                    Icons.delete_outline,
+                                    size: 20,
+                                    color: Colors.red,
+                                  ),
+                                  onPressed: () => _confirmDelete(context, ann),
+                                ),
+                              ],
                             ),
                     ),
                   );
