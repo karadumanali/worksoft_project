@@ -62,6 +62,11 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void updateFullName(String newName) {
+    _fullName = newName;
+    notifyListeners();
+  }
+
   // Token içinden rol ve isim oku
   void _parseToken(String token) {
     final decoded = JwtDecoder.decode(token);

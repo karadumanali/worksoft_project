@@ -7,6 +7,7 @@ import 'features/dashboard/dashboard_screen.dart';
 import 'features/tasks/tasks_screen.dart';
 import 'features/announcements/announcements_screen.dart';
 import 'features/users/users_screen.dart';
+import 'features/profile/profile_screen.dart';
 
 GoRouter createRouter(BuildContext context) {
   final authProvider = Provider.of<AuthProvider>(context, listen: false);
@@ -48,6 +49,10 @@ GoRouter createRouter(BuildContext context) {
           ),
         ],
       ),
+      GoRoute(
+        path: '/profile',
+        builder: (context, state) => const ProfileScreen(),
+      ),
     ],
   );
 }
@@ -66,6 +71,10 @@ class MainShell extends StatelessWidget {
       appBar: AppBar(
         title: Text(_getTitle(location)),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.person_outline),
+            onPressed: () => context.go('/profile'),
+          ),
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () async {
