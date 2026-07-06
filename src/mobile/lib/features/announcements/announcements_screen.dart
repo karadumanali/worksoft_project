@@ -91,7 +91,6 @@ class _AnnouncementsScreenState extends State<AnnouncementsScreen> {
     final isPersonel = auth.role == 'Personel';
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Duyurular')),
       floatingActionButton: isPersonel
           ? null
           : FloatingActionButton(

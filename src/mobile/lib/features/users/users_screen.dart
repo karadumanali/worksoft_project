@@ -76,7 +76,6 @@ class _UsersScreenState extends State<UsersScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Kullanıcılar')),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showUserModal(context, null),
         child: const Icon(Icons.person_add),

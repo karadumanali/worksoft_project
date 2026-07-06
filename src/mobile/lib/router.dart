@@ -63,6 +63,17 @@ class MainShell extends StatelessWidget {
     final location = GoRouterState.of(context).matchedLocation;
 
     return Scaffold(
+      appBar: AppBar(
+        title: Text(_getTitle(location)),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () async {
+              await auth.logout();
+            },
+          ),
+        ],
+      ),
       body: child,
       bottomNavigationBar: NavigationBar(
         selectedIndex: _getIndex(location),
@@ -88,6 +99,14 @@ class MainShell extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  String _getTitle(String location) {
+    if (location.startsWith('/dashboard')) return 'Dashboard';
+    if (location.startsWith('/tasks')) return 'Görevler';
+    if (location.startsWith('/announcements')) return 'Duyurular';
+    if (location.startsWith('/users')) return 'Kullanıcılar';
+    return 'Worksoft';
   }
 
   int _getIndex(String location) {

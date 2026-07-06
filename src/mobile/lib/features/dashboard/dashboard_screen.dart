@@ -42,17 +42,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final auth = Provider.of<AuthProvider>(context);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Dashboard'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () async {
-              await auth.logout();
-            },
-          ),
-        ],
-      ),
       body: RefreshIndicator(
         onRefresh: _fetchSummary,
         child: _isLoading

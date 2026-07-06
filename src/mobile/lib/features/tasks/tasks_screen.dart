@@ -57,6 +57,345 @@ class _TasksScreenState extends State<TasksScreen> {
     }
   }
 
+  Future<void> _confirmDelete(
+    BuildContext context,
+    Map<String, dynamic> task,
+  ) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Görevi Sil'),
+        content: Text(
+          '"${task['title']}" görevini silmek istediğinize emin misiniz?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('İptal'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: Colors.red),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Sil'),
+          ),
+        ],
+      ),
+    );
+    if (confirm != true) return;
+    try {
+      await _api.dio.delete('/tasks/${task['id']}');
+      _fetchTasks();
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Görev silindi')));
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Görev silinemedi')));
+      }
+    }
+  }
+
+  void _showEditTaskModal(BuildContext context, Map<String, dynamic> task) {
+    final titleController = TextEditingController(text: task['title']);
+    final descController = TextEditingController(
+      text: task['description'] ?? '',
+    );
+    String selectedPriority = task['priority'];
+    DateTime? selectedDate = task['dueDate'] != null
+        ? DateTime.parse(task['dueDate'])
+        : null;
+    List<dynamic> users = [];
+    int? selectedUserId = task['assignedUserId'];
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setModalState) {
+          if (users.isEmpty) {
+            _api.dio.get('/users').then((res) {
+              setModalState(() => users = res.data['data']);
+            });
+          }
+          return Padding(
+            padding: EdgeInsets.only(
+              left: 16,
+              right: 16,
+              top: 16,
+              bottom: MediaQuery.of(ctx).viewInsets.bottom + 16,
+            ),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Görevi Düzenle',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: () async {
+                          final confirm = await showDialog<bool>(
+                            context: ctx,
+                            builder: (c) => AlertDialog(
+                              title: const Text('İptal'),
+                              content: const Text(
+                                'Düzenlemeyi iptal etmek istediğinize emin misiniz?',
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(c, false),
+                                  child: const Text('Hayır'),
+                                ),
+                                FilledButton(
+                                  onPressed: () => Navigator.pop(c, true),
+                                  child: const Text('Evet'),
+                                ),
+                              ],
+                            ),
+                          );
+                          if (confirm == true && ctx.mounted)
+                            Navigator.pop(ctx);
+                        },
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: titleController,
+                    decoration: const InputDecoration(
+                      labelText: 'Görev Başlığı',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: descController,
+                    decoration: const InputDecoration(
+                      labelText: 'Açıklama',
+                      border: OutlineInputBorder(),
+                    ),
+                    maxLines: 3,
+                  ),
+                  const SizedBox(height: 12),
+                  DropdownButtonFormField<String>(
+                    value: selectedPriority,
+                    decoration: const InputDecoration(
+                      labelText: 'Öncelik',
+                      border: OutlineInputBorder(),
+                    ),
+                    items: ['Düşük', 'Orta', 'Yüksek']
+                        .map((p) => DropdownMenuItem(value: p, child: Text(p)))
+                        .toList(),
+                    onChanged: (v) =>
+                        setModalState(() => selectedPriority = v!),
+                  ),
+                  const SizedBox(height: 12),
+                  DropdownButtonFormField<int>(
+                    value: selectedUserId,
+                    decoration: const InputDecoration(
+                      labelText: 'Atanan Kişi',
+                      border: OutlineInputBorder(),
+                    ),
+                    items: users
+                        .map(
+                          (u) => DropdownMenuItem<int>(
+                            value: u['id'],
+                            child: Text(u['fullName']),
+                          ),
+                        )
+                        .toList(),
+                    onChanged: (v) => setModalState(() => selectedUserId = v),
+                  ),
+                  const SizedBox(height: 12),
+                  OutlinedButton(
+                    onPressed: () async {
+                      final picked = await showDatePicker(
+                        context: ctx,
+                        initialDate:
+                            selectedDate ??
+                            DateTime.now().add(const Duration(days: 7)),
+                        firstDate: DateTime.now(),
+                        lastDate: DateTime.now().add(const Duration(days: 365)),
+                      );
+                      if (picked != null)
+                        setModalState(() => selectedDate = picked);
+                    },
+                    child: Text(
+                      selectedDate == null
+                          ? 'Bitiş Tarihi Seç'
+                          : selectedDate!.toString().substring(0, 10),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  OutlinedButton(
+                    onPressed: () async {
+                      final confirm = await showDialog<bool>(
+                        context: ctx,
+                        builder: (c) => AlertDialog(
+                          title: const Text('İptal'),
+                          content: const Text(
+                            'Düzenlemeyi iptal etmek istediğinize emin misiniz?',
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(c, false),
+                              child: const Text('Hayır'),
+                            ),
+                            FilledButton(
+                              onPressed: () => Navigator.pop(c, true),
+                              child: const Text('Evet'),
+                            ),
+                          ],
+                        ),
+                      );
+                      if (confirm == true && ctx.mounted) Navigator.pop(ctx);
+                    },
+                    child: const Text('İptal'),
+                  ),
+                  const SizedBox(height: 8),
+                  FilledButton(
+                    onPressed: () async {
+                      if (titleController.text.isEmpty ||
+                          selectedUserId == null ||
+                          selectedDate == null) {
+                        ScaffoldMessenger.of(ctx).showSnackBar(
+                          const SnackBar(
+                            content: Text('Tüm alanları doldurun'),
+                          ),
+                        );
+                        return;
+                      }
+                      final confirm = await showDialog<bool>(
+                        context: ctx,
+                        builder: (c) => AlertDialog(
+                          title: const Text('Görevi Güncelle'),
+                          content: const Text(
+                            'Değişiklikleri kaydetmek istediğinize emin misiniz?',
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(c, false),
+                              child: const Text('İptal'),
+                            ),
+                            FilledButton(
+                              onPressed: () => Navigator.pop(c, true),
+                              child: const Text('Evet'),
+                            ),
+                          ],
+                        ),
+                      );
+                      if (confirm != true) return;
+                      try {
+                        await _api.dio.put(
+                          '/tasks/${task['id']}',
+                          data: {
+                            'title': titleController.text,
+                            'description': descController.text,
+                            'assignedUserId': selectedUserId,
+                            'priority': selectedPriority,
+                            'dueDate': selectedDate!.toIso8601String(),
+                          },
+                        );
+                        if (ctx.mounted) Navigator.pop(ctx);
+                        _fetchTasks();
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Görev güncellendi')),
+                          );
+                        }
+                      } catch (e) {
+                        if (ctx.mounted) {
+                          ScaffoldMessenger.of(ctx).showSnackBar(
+                            const SnackBar(
+                              content: Text('Güncelleme başarısız'),
+                            ),
+                          );
+                        }
+                      }
+                    },
+                    child: const Text('Güncelle'),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  void _showTaskDetail(BuildContext context, Map<String, dynamic> task) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (ctx) => Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Görev Detayı',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () => Navigator.pop(ctx),
+                ),
+              ],
+            ),
+            const Divider(),
+            const SizedBox(height: 8),
+            _detailRow('Başlık', task['title']),
+            _detailRow('Açıklama', task['description'] ?? '-'),
+            _detailRow('Atanan Kişi', task['assignedUserName'] ?? '-'),
+            _detailRow('Öncelik', task['priority']),
+            _detailRow('Durum', task['status']),
+            _detailRow(
+              'Bitiş Tarihi',
+              task['dueDate']?.toString().substring(0, 10) ?? '-',
+            ),
+            const SizedBox(height: 16),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _detailRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 110,
+            child: Text(
+              label,
+              style: const TextStyle(color: Colors.grey, fontSize: 13),
+            ),
+          ),
+          Expanded(child: Text(value, style: const TextStyle(fontSize: 14))),
+        ],
+      ),
+    );
+  }
+
   Color _priorityColor(String priority) {
     switch (priority) {
       case 'Yüksek':
@@ -89,7 +428,6 @@ class _TasksScreenState extends State<TasksScreen> {
     final isPersonel = auth.role == 'Personel';
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Görevler')),
       floatingActionButton: isPersonel
           ? null
           : FloatingActionButton(
@@ -109,97 +447,124 @@ class _TasksScreenState extends State<TasksScreen> {
                 itemCount: _tasks.length,
                 itemBuilder: (context, index) {
                   final task = _tasks[index];
-                  return Card(
-                    margin: const EdgeInsets.only(bottom: 10),
-                    child: Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  task['title'],
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
+                  return GestureDetector(
+                    onTap: () => _showTaskDetail(context, task),
+                    child: Card(
+                      margin: const EdgeInsets.only(bottom: 10),
+                      child: Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    task['title'],
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                    ),
                                   ),
                                 ),
-                              ),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                  vertical: 4,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: _priorityColor(
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 4,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: _priorityColor(
+                                      task['priority'],
+                                    ).withOpacity(0.2),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Text(
                                     task['priority'],
-                                  ).withOpacity(0.2),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Text(
-                                  task['priority'],
-                                  style: TextStyle(
-                                    color: _priorityColor(task['priority']),
-                                    fontSize: 12,
+                                    style: TextStyle(
+                                      color: _priorityColor(task['priority']),
+                                      fontSize: 12,
+                                    ),
                                   ),
                                 ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 6),
-                          Text(
-                            'Atanan: ${task['assignedUserName']}',
-                            style: const TextStyle(color: Colors.grey),
-                          ),
-                          Text(
-                            'Bitiş: ${task['dueDate']?.toString().substring(0, 10) ?? '-'}',
-                            style: const TextStyle(color: Colors.grey),
-                          ),
-                          const SizedBox(height: 8),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              DropdownButton<String>(
-                                value: task['status'],
-                                isDense: true,
-                                items: ['Bekliyor', 'Başladı', 'Tamamlandı']
-                                    .map(
-                                      (s) => DropdownMenuItem(
-                                        value: s,
-                                        child: Text(s),
-                                      ),
-                                    )
-                                    .toList(),
-                                onChanged: (newStatus) {
-                                  if (newStatus != null) {
-                                    _updateStatus(task['id'], newStatus);
-                                  }
-                                },
-                              ),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                  vertical: 4,
+                              ],
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              'Atanan: ${task['assignedUserName']}',
+                              style: const TextStyle(color: Colors.grey),
+                            ),
+                            Text(
+                              'Bitiş: ${task['dueDate']?.toString().substring(0, 10) ?? '-'}',
+                              style: const TextStyle(color: Colors.grey),
+                            ),
+                            const SizedBox(height: 8),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                DropdownButton<String>(
+                                  value: task['status'],
+                                  isDense: true,
+                                  items: ['Bekliyor', 'Başladı', 'Tamamlandı']
+                                      .map(
+                                        (s) => DropdownMenuItem(
+                                          value: s,
+                                          child: Text(s),
+                                        ),
+                                      )
+                                      .toList(),
+                                  onChanged: (newStatus) {
+                                    if (newStatus != null) {
+                                      _updateStatus(task['id'], newStatus);
+                                    }
+                                  },
                                 ),
-                                decoration: BoxDecoration(
-                                  color: _statusColor(
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 4,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: _statusColor(
+                                      task['status'],
+                                    ).withOpacity(0.2),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Text(
                                     task['status'],
-                                  ).withOpacity(0.2),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Text(
-                                  task['status'],
-                                  style: TextStyle(
-                                    color: _statusColor(task['status']),
-                                    fontSize: 12,
+                                    style: TextStyle(
+                                      color: _statusColor(task['status']),
+                                      fontSize: 12,
+                                    ),
                                   ),
                                 ),
-                              ),
-                            ],
-                          ),
-                        ],
+
+                                if (!isPersonel)
+                                  Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      IconButton(
+                                        icon: const Icon(
+                                          Icons.edit_outlined,
+                                          size: 20,
+                                        ),
+                                        onPressed: () =>
+                                            _showEditTaskModal(context, task),
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(
+                                          Icons.delete_outline,
+                                          size: 20,
+                                          color: Colors.red,
+                                        ),
+                                        onPressed: () =>
+                                            _confirmDelete(context, task),
+                                      ),
+                                    ],
+                                  ),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   );
