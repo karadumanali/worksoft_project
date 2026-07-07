@@ -49,6 +49,7 @@ dependencies:
 
   # Environment variables
   flutter_dotenv: ^5.2.1
+  flutter_native_splash: ^2.4.8
 
 dev_dependencies:
   flutter_test:
@@ -119,3 +120,9 @@ flutter_launcher_icons:
   adaptive_icon_foreground: "assets/icon_foreground.png"
 
 
+flutter_native_splash:
+  color: "#0f1724"
+  image: assets/logo.png
+  android: true
+  ios: true
+  fullscreen: true
