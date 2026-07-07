@@ -116,14 +116,6 @@ class MainShell extends StatelessWidget {
     );
   }
 
-  String _getTitle(String location) {
-    if (location.startsWith('/dashboard')) return 'Dashboard';
-    if (location.startsWith('/tasks')) return 'Görevler';
-    if (location.startsWith('/announcements')) return 'Duyurular';
-    if (location.startsWith('/users')) return 'Kullanıcılar';
-    return 'Worksoft';
-  }
-
   int _getIndex(String location) {
     if (location.startsWith('/dashboard')) return 0;
     if (location.startsWith('/tasks')) return 1;

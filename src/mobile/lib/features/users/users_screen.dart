@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../../core/auth_provider.dart';
+
 import '../../core/services/api_service.dart';
 
 class UsersScreen extends StatefulWidget {

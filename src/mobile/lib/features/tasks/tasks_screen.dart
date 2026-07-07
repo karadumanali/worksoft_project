@@ -396,19 +396,6 @@ class _TasksScreenState extends State<TasksScreen> {
     );
   }
 
-  Color _priorityColor(String priority) {
-    switch (priority) {
-      case 'Yüksek':
-        return Colors.red;
-      case 'Orta':
-        return Colors.orange;
-      case 'Düşük':
-        return Colors.green;
-      default:
-        return Colors.grey;
-    }
-  }
-
   Widget _priorityBars(String priority) {
     int activeBars;
     switch (priority) {

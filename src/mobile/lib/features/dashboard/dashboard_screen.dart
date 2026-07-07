@@ -39,8 +39,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final auth = Provider.of<AuthProvider>(context);
-
     return Scaffold(
       body: RefreshIndicator(
         onRefresh: _fetchSummary,
