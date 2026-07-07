@@ -409,6 +409,37 @@ class _TasksScreenState extends State<TasksScreen> {
     }
   }
 
+  Widget _priorityBars(String priority) {
+    int activeBars;
+    switch (priority) {
+      case 'Yüksek':
+        activeBars = 3;
+        break;
+      case 'Orta':
+        activeBars = 2;
+        break;
+      default:
+        activeBars = 1;
+    }
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: List.generate(activeBars, (i) {
+        final double height = 6.0 + (i * 4.0);
+        return Container(
+          width: 5,
+          height: height,
+          margin: const EdgeInsets.only(right: 3),
+          decoration: BoxDecoration(
+            color: const Color(0xFF334155),
+            borderRadius: BorderRadius.circular(2),
+          ),
+        );
+      }),
+    );
+  }
+
   Color _statusColor(String status) {
     switch (status) {
       case 'Tamamlandı':
@@ -473,17 +504,30 @@ class _TasksScreenState extends State<TasksScreen> {
                                     vertical: 4,
                                   ),
                                   decoration: BoxDecoration(
-                                    color: _priorityColor(
-                                      task['priority'],
-                                    ).withOpacity(0.2),
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: Text(
-                                    task['priority'],
-                                    style: TextStyle(
-                                      color: _priorityColor(task['priority']),
-                                      fontSize: 12,
+                                    color: const Color.fromARGB(
+                                      255,
+                                      211,
+                                      211,
+                                      211,
                                     ),
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      _priorityBars(task['priority']),
+                                      const SizedBox(width: 6),
+                                      Text(
+                                        task['priority'],
+                                        style: const TextStyle(
+                                          color: Color(0xFF334155),
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ],

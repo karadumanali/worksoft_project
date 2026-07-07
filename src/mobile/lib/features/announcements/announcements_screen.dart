@@ -39,9 +39,14 @@ class _AnnouncementsScreenState extends State<AnnouncementsScreen> {
 
   Future<void> _toggleStatus(int id, bool currentStatus) async {
     try {
+      final ann = _announcements.firstWhere((a) => a['id'] == id);
       await _api.dio.put(
         '/announcements/$id',
-        data: {'isActive': !currentStatus},
+        data: {
+          'title': ann['title'],
+          'content': ann['content'],
+          'isActive': !currentStatus,
+        },
       );
       _fetchAnnouncements();
       if (mounted) {

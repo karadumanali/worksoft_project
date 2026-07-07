@@ -63,11 +63,11 @@ class _UsersScreenState extends State<UsersScreen> {
   Color _roleColor(String role) {
     switch (role) {
       case 'Admin':
-        return Colors.red;
+        return const Color(0xFF7C3AED); // Mor
       case 'Yönetici':
-        return Colors.blue;
+        return const Color(0xFF1976D2); // Mavi
       case 'Personel':
-        return Colors.green;
+        return const Color.fromARGB(255, 159, 168, 185); // Gri
       default:
         return Colors.grey;
     }
