@@ -20,11 +20,15 @@ class AuthProvider extends ChangeNotifier {
 
   // Uygulama açılınca token var mı kontrol et
   Future<void> tryAutoLogin() async {
-    final token = await _storage.read(key: 'jwt_token');
-    if (token != null && !JwtDecoder.isExpired(token)) {
-      _token = token;
-      _parseToken(token);
-      notifyListeners();
+    try {
+      final token = await _storage.read(key: 'jwt_token');
+      if (token != null && !JwtDecoder.isExpired(token)) {
+        _token = token;
+        _parseToken(token);
+        notifyListeners();
+      }
+    } catch (e) {
+      // token okunamazsa sessizce geç
     }
   }
 

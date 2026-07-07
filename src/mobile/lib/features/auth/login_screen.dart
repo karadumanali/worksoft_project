@@ -45,18 +45,9 @@ class _LoginScreenState extends State<LoginScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Icon(Icons.task_alt, size: 72, color: Color(0xFF1976D2)),
+              Image.asset('assets/logo.png', height: 140),
               const SizedBox(height: 16),
-              const Text(
-                'Worksoft',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
-              ),
-              const Text(
-                'Task Tracker',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 16, color: Colors.grey),
-              ),
+
               const SizedBox(height: 40),
               TextField(
                 controller: _emailController,

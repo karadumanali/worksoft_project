@@ -69,7 +69,13 @@ class MainShell extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(_getTitle(location)),
+        title: Row(
+          children: [
+            Image.asset('assets/logo.png', height: 32),
+            const SizedBox(width: 10),
+            Text(auth.fullName ?? '', style: const TextStyle(fontSize: 16)),
+          ],
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.person_outline),
