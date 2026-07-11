@@ -1,10 +1,9 @@
 version: '3.8'
-
 services:
   mssql:
     image: mcr.microsoft.com/mssql/server:2022-latest
     environment:
-      SA_PASSWORD: "Wstaj2026Serkan"
+      SA_PASSWORD: "${MSSQL_SA_PASSWORD}"
       ACCEPT_EULA: "Y"
     ports:
       - "1433:1433"
@@ -12,14 +11,12 @@ services:
       - mssql_data:/var/opt/mssql
     networks:
       - worksoft-network
-
   redis:
     image: redis:7-alpine
     ports:
       - "6379:6379"
     networks:
       - worksoft-network
-
   api:
     build:
       context: ./src/backend
@@ -28,10 +25,10 @@ services:
       - "5000:8080"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Server=mssql,1433;Database=WorksoftTaskTracker;User Id=sa;Password=Wstaj2026Serkan;TrustServerCertificate=True;
+      - ConnectionStrings__DefaultConnection=Server=mssql,1433;Database=WorksoftTaskTracker;User Id=sa;Password=${MSSQL_SA_PASSWORD};TrustServerCertificate=True;
       - Redis__ConnectionString=redis:6379
       - Redis__InstanceName=WorksoftCache
-      - Jwt__SecretKey=worksoft-super-secret-jwt-key-minimum-32-chars
+      - Jwt__SecretKey=${JWT_SECRET_KEY}
       - Jwt__Issuer=WorksoftTaskTracker
       - Jwt__Audience=WorksoftTaskTrackerClient
       - Jwt__ExpireMinutes=60
@@ -40,7 +37,6 @@ services:
       - redis
     networks:
       - worksoft-network
-
   frontend:
     build:
       context: ./src/frontend
@@ -51,10 +47,8 @@ services:
       - api
     networks:
       - worksoft-network
-
 networks:
   worksoft-network:
     driver: bridge
-
 volumes:
   mssql_data:

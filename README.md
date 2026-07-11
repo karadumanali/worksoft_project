@@ -26,7 +26,12 @@ Kurulum için aşağıdaki araçların bilgisayarında kurulu olması gerekir.
 
 **Windows:** https://git-scm.com/download/win adresinden indir ve kur.  
 **macOS:** `brew install git` veya https://git-scm.com/download/mac  
-**Linux:** `sudo apt install git` (Debian/Ubuntu) veya `sudo dnf install git` (Fedora)
+**Linux:** 
+```bash
+sudo dpkg --configure -a    # Gerekiyorsa çalıştır
+sudo apt update
+sudo apt install git
+```
 
 ### Docker
 
@@ -44,7 +49,14 @@ newgrp docker
 
 ### .NET 8 SDK (migration için)
 
-**Windows / macOS / Linux:** https://dotnet.microsoft.com/download/dotnet/8.0 adresinden işletim sistemine uygun paketi indir ve kur.
+**Windows / macOS:** https://dotnet.microsoft.com/download/dotnet/8.0 adresinden işletim sistemine uygun paketi indir ve kur.
+
+**Linux (Debian/Ubuntu):**
+```bash
+sudo dpkg --configure -a    # Gerekiyorsa çalıştır
+sudo apt-get update
+sudo apt-get install -y dotnet-sdk-8.0
+```
 
 Kurulumu doğrula:
 ```bash
@@ -58,15 +70,22 @@ dotnet --version
 .NET 8 SDK kurulduktan sonra şu komutu çalıştır:
 
 ```bash
-dotnet tool install --global dotnet-ef
+dotnet tool install --global dotnet-ef --version 8.0.8
+export PATH="$PATH:/root/.dotnet/tools"
 ```
+
+> `export PATH` satırını her terminal açılışında tekrar çalıştırmamak için `~/.bashrc` veya `~/.bash_profile` dosyasına ekle:
+> ```bash
+> echo 'export PATH="$PATH:/root/.dotnet/tools"' >> ~/.bashrc
+> source ~/.bashrc
+> ```
 
 Kurulumu doğrula:
 ```bash
 dotnet ef --version
 ```
 
-`8.x.x` çıktısı görmelisin.
+`8.0.8` çıktısı görmelisin.
 
 ### 1. Repoyu klonla
 
@@ -100,8 +119,15 @@ JWT_SECRET_KEY=       # En az 32 karakterlik rastgele bir string
 ### 3. Sistemi ayağa kaldır
 
 ```bash
-docker-compose up --build
+docker compose up --build    # Linux/macOS
+docker-compose up --build    # Windows
 ```
+
+
+> API servisi MSSQL henüz hazır olmadan başlarsa çökebilir. Bu durumda şunu çalıştır:
+> ```bash
+> docker compose restart api
+> ```
 
 > İlk çalıştırmada Docker image'ları indirilir, bu 5-10 dakika sürebilir. Sonraki başlatmalarda çok daha hızlı olacak.
 
@@ -110,7 +136,8 @@ docker-compose up --build
 Tüm servislerin ayağa kalktığını yeni bir terminal açarak şu komutla teyit et :
 
 ```bash
-docker-compose ps
+docker-compose ps   #windows
+docker compose ps   #linux
 ```
 
 Dört servisin de `Up` durumunda olduğunu görmelisin: `api`, `frontend`, `mssql`, `redis`.
@@ -210,7 +237,8 @@ Geliştirme yaparken Docker'da sadece MSSQL ve Redis'i çalıştırıp backend v
 ### 1. Sadece veritabanı servislerini başlat
 
 ```bash
-docker-compose up mssql redis -d
+docker-compose up mssql redis -d  #windows
+docker compose up mssql redis -d  #linux
 ```
 
 ### 2. Backend'i başlat (hot reload ile)
