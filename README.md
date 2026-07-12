@@ -146,21 +146,24 @@ Dört servisin de `Up` durumunda olduğunu görmelisin: `api`, `frontend`, `mssq
 
 MSSQL container'ı tamamen ayağa kalktıktan sonra (yaklaşık 30 saniye bekle) yeni bir terminal aç ve şunu çalıştır:
 
-**Windows (PowerShell):**
-```powershell
-cd src/backend
-$env:ConnectionStrings__DefaultConnection="Server=localhost,1433;Database=WorksoftTaskTracker;User Id=sa;Password=<.env dosyasındaki MSSQL_SA_PASSWORD>;TrustServerCertificate=True;"
-dotnet ef database update --project WorksoftTaskTracker.Infrastructure --startup-project WorksoftTaskTracker.API
-```
-
 **macOS / Linux:**
 ```bash
 cd src/backend
-export ConnectionStrings__DefaultConnection="Server=localhost,1433;Database=WorksoftTaskTracker;User Id=sa;Password=<.env dosyasındaki MSSQL_SA_PASSWORD>;TrustServerCertificate=True;"
+export PATH="$PATH:$HOME/.dotnet/tools"
+export MSSQL_SA_PASSWORD=$(grep MSSQL_SA_PASSWORD ../../.env | cut -d '=' -f2 | tr -d ' ')
+export ConnectionStrings__DefaultConnection="Server=localhost,1433;Database=WorksoftTaskTracker;User Id=sa;Password=${MSSQL_SA_PASSWORD};TrustServerCertificate=True;"
 dotnet ef database update --project WorksoftTaskTracker.Infrastructure --startup-project WorksoftTaskTracker.API
 ```
 
-> `<.env dosyasındaki MSSQL_SA_PASSWORD>` kısmını `.env` dosyasında belirlediğin şifreyle değiştir. `appsettings.json` dosyasına dokunmana gerek yok.
+**Windows (PowerShell):**
+```powershell
+cd src/backend
+$MSSQL_SA_PASSWORD = (Get-Content ../.env | Where-Object { $_ -match "^MSSQL_SA_PASSWORD=" }) -replace "^MSSQL_SA_PASSWORD=", ""
+$env:ConnectionStrings__DefaultConnection="Server=localhost,1433;Database=WorksoftTaskTracker;User Id=sa;Password=$MSSQL_SA_PASSWORD;TrustServerCertificate=True;"
+dotnet ef database update --project WorksoftTaskTracker.Infrastructure --startup-project WorksoftTaskTracker.API
+```
+
+> Bu komutlar şifreyi `.env` dosyasından otomatik okur, elle yazmanı gerekmez.
 
 ### 5. Admin kullanıcısını oluştur
 
