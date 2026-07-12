@@ -166,7 +166,7 @@ k8s/secrets/
 
 
 src/backend/HashGenerator/
-src/backend/seed.sql
+
 
 
 # Flutter / Mobile
