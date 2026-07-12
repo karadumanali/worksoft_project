@@ -124,10 +124,16 @@ docker-compose up --build    # Windows
 ```
 
 
-> API servisi MSSQL henüz hazır olmadan başlarsa çökebilir. Bu durumda şunu çalıştır:
+> API servisi MSSQL henüz hazır olmadan başlarsa çökebilir veya bilgisayar yeniden başlatıldıktan sonra ayağa kalkmayabilir. Bu durumda şunu çalıştır:
+> 
+> **Linux/macOS:**
 > ```bash
 > docker compose restart api
 > ```
+> **Windows:**
+> ```powershell
+> docker-compose restart api
+> ``````
 
 > İlk çalıştırmada Docker image'ları indirilir, bu 5-10 dakika sürebilir. Sonraki başlatmalarda çok daha hızlı olacak.
 
@@ -169,16 +175,18 @@ dotnet ef database update --project WorksoftTaskTracker.Infrastructure --startup
 
 Migration tamamlandıktan sonra seed data'yı yükle:
 
-**Windows (PowerShell):**
-```powershell
-docker cp src\backend\seed.sql worksoft_project-mssql-1:/seed.sql
-docker exec -it worksoft_project-mssql-1 /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "<.env dosyasındaki MSSQL_SA_PASSWORD>" -No -i /seed.sql
-```
-
 **macOS / Linux:**
 ```bash
+MSSQL_SA_PASSWORD=$(grep "^MSSQL_SA_PASSWORD=" .env | cut -d '=' -f2 | xargs)
 docker cp src/backend/seed.sql worksoft_project-mssql-1:/seed.sql
-docker exec -it worksoft_project-mssql-1 /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "<.env dosyasındaki MSSQL_SA_PASSWORD>" -No -i /seed.sql
+docker exec -it worksoft_project-mssql-1 /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "$MSSQL_SA_PASSWORD" -No -i /seed.sql
+```
+
+**Windows (PowerShell):**
+```powershell
+$MSSQL_SA_PASSWORD = (Get-Content .env | Where-Object { $_ -match "^MSSQL_SA_PASSWORD=" }) -replace "^MSSQL_SA_PASSWORD=", ""
+docker cp src\backend\seed.sql worksoft_project-mssql-1:/seed.sql
+docker exec -it worksoft_project-mssql-1 /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "$MSSQL_SA_PASSWORD" -No -i /seed.sql
 ```
 
 > `<.env dosyasındaki MSSQL_SA_PASSWORD>` kısmını `.env` dosyasında belirlediğin şifreyle değiştir.
