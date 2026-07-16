@@ -82,7 +82,7 @@ function AppearanceModal({ onClose }) {
                 Uygulama Logosu
               </Typography>
               <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                Sidebar'da ve login sayfasında görünür.
+                Sidebar'da ve log-in sayfasında görünür.
               </Typography>
               <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
                 {logo ? (
@@ -119,7 +119,7 @@ function AppearanceModal({ onClose }) {
                 Login Sayfası Görselleri
               </Typography>
               <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                Login sayfasının sol tarafında 3 görsel gösterilir.
+                Login sayfasının sol tarafında seçilen görsel/ler gösterilir.
               </Typography>
               <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
                 {[0, 1, 2].map((index) => (
@@ -131,10 +131,10 @@ function AppearanceModal({ onClose }) {
                       <Box
                         component="img"
                         src={loginImages[index]}
-                        sx={{ width: 60, height: 60, objectFit: "cover", borderRadius: 1, border: "1px solid", borderColor: "divider" }}
+                        sx={{ width: 45, height: 60, objectFit: "cover", borderRadius: 1, border: "1px solid", borderColor: "divider" }}
                       />
                     ) : (
-                      <Box sx={{ width: 60, height: 60, borderRadius: 1, border: "2px dashed", borderColor: "divider", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <Box sx={{ width: 45, height: 60, borderRadius: 1, border: "2px dashed", borderColor: "divider", display: "flex", alignItems: "center", justifyContent: "center" }}>
                         <Typography variant="caption" color="text.secondary">Yok</Typography>
                       </Box>
                     )}
