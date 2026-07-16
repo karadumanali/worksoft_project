@@ -15,4 +15,5 @@ public class UpdateUserDto
 
     public bool IsActive { get; set; }
     public bool ResetPassword { get; set; }
+    public string? NewPassword { get; set; }
 }

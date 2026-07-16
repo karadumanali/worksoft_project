@@ -80,10 +80,9 @@ public class UsersController : ControllerBase
         user.RoleId = request.RoleId;
         user.IsActive = request.IsActive;
 
-        if (request.ResetPassword)
+        if (request.ResetPassword && !string.IsNullOrEmpty(request.NewPassword))
         {
-            var tempPassword = Guid.NewGuid().ToString("N")[..8];
-            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(tempPassword);
+            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
         }
 
         await _userRepository.UpdateAsync(user);
