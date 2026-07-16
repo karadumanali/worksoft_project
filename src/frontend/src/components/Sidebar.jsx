@@ -8,6 +8,7 @@ import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import LogoCropModal from "./LogoCropModal";
+import AppearanceModal from "./AppearanceModal";
 
 function Sidebar() {
   const { user, logout } = useAuth();
@@ -15,6 +16,7 @@ function Sidebar() {
   const fileInputRef = useRef(null);
   const [logo, setLogo] = useState(null);
   const [cropSrc, setCropSrc] = useState(null);
+  const [showAppearance, setShowAppearance] = useState(false);
 
   useEffect(() => {
     const savedLogo = localStorage.getItem("worksoft_logo");
@@ -172,6 +174,22 @@ function Sidebar() {
               {user.fullName}
             </Typography>
           </Box>
+          {isAdmin && (
+            <Button
+              variant="outlined"
+              size="small"
+              fullWidth
+              onClick={() => setShowAppearance(true)}
+              sx={{
+                mb: 1,
+                color: "rgba(255,255,255,0.7)",
+                borderColor: "rgba(255,255,255,0.3)",
+                "&:hover": { borderColor: "white", color: "white" },
+              }}
+            >
+              Görünüm Ayarları
+            </Button>
+            )}
           <Button
             variant="contained"
             size="small"
@@ -193,6 +211,9 @@ function Sidebar() {
           onClose={() => setCropSrc(null)}
           onSave={handleSaveLogo}
         />
+      )}
+      {showAppearance && (
+        <AppearanceModal onClose={() => setShowAppearance(false)} />
       )}
     </Box>
   );

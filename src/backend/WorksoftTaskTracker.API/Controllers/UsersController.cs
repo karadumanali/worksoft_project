@@ -12,7 +12,7 @@ namespace WorksoftTaskTracker.API.Controllers;
 
 [ApiController]
 [Route("api/users")]
-[Authorize(Roles = "Admin")]
+[Authorize]
 public class UsersController : ControllerBase
 {
     private readonly IUserRepository _userRepository;
@@ -26,6 +26,7 @@ public class UsersController : ControllerBase
     }
 
     [HttpGet]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> GetAll()
     {
         var users = await _userRepository.GetAllAsync();
@@ -44,6 +45,7 @@ public class UsersController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Create([FromBody] CreateUserDto request)
     {
         var existingUser = await _userRepository.GetByEmailAsync(request.Email);
@@ -67,6 +69,7 @@ public class UsersController : ControllerBase
     }
 
     [HttpPut("{id}")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Update(int id, [FromBody] UpdateUserDto request)
     {
         var user = await _userRepository.GetByIdAsync(id);
@@ -92,7 +95,7 @@ public class UsersController : ControllerBase
 
 
     [HttpGet("profile")]
-[Authorize]
+
 public async Task<IActionResult> GetProfile()
 {
     var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -117,7 +120,7 @@ public async Task<IActionResult> GetProfile()
 }
 
 [HttpPut("profile")]
-[Authorize]
+
 public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileDto request)
 {
     var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -135,7 +138,7 @@ public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileDto reque
 }
 
 [HttpPut("profile/password")]
-[Authorize]
+
 public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto request)
 {
     var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
