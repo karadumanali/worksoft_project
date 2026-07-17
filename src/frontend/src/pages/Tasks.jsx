@@ -83,7 +83,27 @@ function Tasks() {
                 <TableCell>{task.title}</TableCell>
                 <TableCell>{task.assignedUserName}</TableCell>
                 <TableCell>{task.priority}</TableCell>
-                <TableCell>{new Date(task.dueDate).toLocaleDateString("tr-TR")}</TableCell>
+                <TableCell>
+                {(() => {
+                  const due = new Date(task.dueDate);
+                  const today = new Date();
+                  today.setHours(0, 0, 0, 0);
+                  const isOverdue = due < today && task.status !== "Tamamlandı";
+                  return (
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                      <Typography
+                        variant="body2"
+                        sx={{ color: isOverdue ? "#f59e0b" : "inherit", fontWeight: isOverdue ? "bold" : "normal" }}
+                      >
+                        {due.toLocaleDateString("tr-TR")}
+                      </Typography>
+                      {isOverdue && (
+                        <Typography variant="caption" sx={{ color: "#f59e0b" }}>⚠</Typography>
+                      )}
+                    </Box>
+                  );
+                })()}
+              </TableCell>
                 <TableCell>
                   <Select
                     value={task.status}

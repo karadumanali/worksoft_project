@@ -94,6 +94,7 @@ function EditUserModal({ targetUser, onClose, onUpdated }) {
             </TextField>
             <FormControlLabel
               control={
+                
                 <Checkbox
                   checked={changePassword}
                   onChange={(e) => {
@@ -105,6 +106,16 @@ function EditUserModal({ targetUser, onClose, onUpdated }) {
                 />
               }
               label="Kullanıcının Parolasını Değiştir"
+            />
+
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={isActive}
+                  onChange={(e) => setIsActive(e.target.checked)}
+                />
+              }
+              label={isActive ? "Hesap Aktif" : "Hesap Pasif"}
             />
             {changePassword && (
               <>

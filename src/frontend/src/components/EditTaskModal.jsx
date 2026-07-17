@@ -87,7 +87,10 @@ function EditTaskModal({ task, onClose, onUpdated }) {
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
               fullWidth
-              slotProps={{ inputLabel: { shrink: true } }}
+              slotProps={{
+                inputLabel: { shrink: true },
+                htmlInput: { min: new Date().toISOString().split("T")[0] }
+              }}
             />
             <TextField
               label="Açıklama"
