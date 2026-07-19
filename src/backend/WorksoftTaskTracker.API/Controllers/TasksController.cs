@@ -33,6 +33,7 @@ public class TasksController : ControllerBase
         {
             Id = t.Id,
             Title = t.Title,
+            Description = t.Description,
             AssignedUserId = t.AssignedUserId,
             AssignedUserName = t.AssignedUser.FullName,
             Priority = t.Priority,
@@ -53,6 +54,7 @@ public class TasksController : ControllerBase
         {
             Id = t.Id,
             Title = t.Title,
+            Description = t.Description,
             AssignedUserId = t.AssignedUserId,
             AssignedUserName = t.AssignedUser.FullName,
             Priority = t.Priority,
@@ -115,6 +117,9 @@ public class TasksController : ControllerBase
         var task = await _taskRepository.GetByIdAsync(id);
         if (task == null)
             return NotFound(new { isSuccess = false, message = "Görev bulunamadı." });
+
+        if (task.Status == "Tamamlandı")
+            return BadRequest(new { isSuccess = false, message = "Tamamlanmış bir görevin durumu değiştirilemez." });
 
         task.Status = request.Status;
 

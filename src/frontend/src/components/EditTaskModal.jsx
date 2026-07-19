@@ -12,7 +12,7 @@ function EditTaskModal({ task, onClose, onUpdated }) {
   const [assignedUserId, setAssignedUserId] = useState(task.assignedUserId);
   const [priority, setPriority] = useState(task.priority);
   const [dueDate, setDueDate] = useState(task.dueDate.split("T")[0]);
-  const [description, setDescription] = useState("");
+  const [description, setDescription] = useState(task.description || "");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [confirmEdit, setConfirmEdit] = useState(false);

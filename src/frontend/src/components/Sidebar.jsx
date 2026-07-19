@@ -9,6 +9,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import LogoCropModal from "./LogoCropModal";
 import AppearanceModal from "./AppearanceModal";
+import ConfirmDialog from "./ConfirmDialog";
 
 function Sidebar() {
   const { user, logout } = useAuth();
@@ -17,6 +18,7 @@ function Sidebar() {
   const [logo, setLogo] = useState(null);
   const [cropSrc, setCropSrc] = useState(null);
   const [showAppearance, setShowAppearance] = useState(false);
+  const [confirmLogout, setConfirmLogout] = useState(false);
 
   useEffect(() => {
     const savedLogo = localStorage.getItem("worksoft_logo");
@@ -194,7 +196,7 @@ function Sidebar() {
             variant="contained"
             size="small"
             fullWidth
-            onClick={handleLogout}
+            onClick={() => setConfirmLogout(true)}
             sx={{
               bgcolor: "white",
               color: "#334155",
@@ -214,6 +216,13 @@ function Sidebar() {
       )}
       {showAppearance && (
         <AppearanceModal onClose={() => setShowAppearance(false)} />
+      )}
+      {confirmLogout && (
+        <ConfirmDialog
+          message="Çıkış yapmak istediğinize emin misiniz?"
+          onConfirm={() => { setConfirmLogout(false); handleLogout(); }}
+          onCancel={() => setConfirmLogout(false)}
+        />
       )}
     </Box>
   );

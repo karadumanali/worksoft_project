@@ -1,7 +1,7 @@
 import { useState } from "react";
 import {
   Dialog, DialogTitle, DialogContent, DialogActions,
-  Button, TextField, MenuItem, Box, FormControlLabel, Checkbox, Typography, CircularProgress,
+  Button, TextField, MenuItem, Box, FormControlLabel, Checkbox, Switch, Typography, CircularProgress,
   InputAdornment, IconButton
 } from "@mui/material";
 import VisibilityIcon from "@mui/icons-material/Visibility";
@@ -110,9 +110,10 @@ function EditUserModal({ targetUser, onClose, onUpdated }) {
 
             <FormControlLabel
               control={
-                <Checkbox
+                <Switch
                   checked={isActive}
                   onChange={(e) => setIsActive(e.target.checked)}
+                  color="success"
                 />
               }
               label={isActive ? "Hesap Aktif" : "Hesap Pasif"}
