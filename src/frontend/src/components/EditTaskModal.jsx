@@ -21,7 +21,7 @@ function EditTaskModal({ task, onClose, onUpdated }) {
     async function fetchUsers() {
       try {
         const response = await axiosInstance.get("/users");
-        setUsers(response.data.data);
+        setUsers(response.data.data.filter((u) => u.isActive || u.id === task.assignedUserId));
       } catch (err) {
         setError("Kullanıcı listesi yüklenemedi.");
       }

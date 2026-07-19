@@ -16,6 +16,8 @@ spec:
       containers:
         - name: api
           image: worksoft-api:latest
+          securityContext:
+            allowPrivilegeEscalation: false
           ports:
             - containerPort: 8080
           env:
