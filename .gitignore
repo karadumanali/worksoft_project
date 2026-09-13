@@ -166,4 +166,13 @@ k8s/secrets/
 
 
 src/backend/HashGenerator/
-src/backend/seed.sql
+
+
+
+# Flutter / Mobile
+src/mobile/.dart_tool/
+src/mobile/.flutter-plugins
+src/mobile/.flutter-plugins-dependencies
+src/mobile/build/
+src/mobile/.packages
+src/mobile/pubspec.lockgit checkout dev

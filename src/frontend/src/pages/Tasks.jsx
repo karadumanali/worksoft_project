@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import {
   Box, Typography, Button, Table, TableHead, TableBody,
-  TableRow, TableCell, Paper, Select, MenuItem, IconButton
+  TableRow, TableCell, Paper, Select, MenuItem, IconButton, Chip
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -10,6 +10,7 @@ import { useAuth } from "../context/AuthContext";
 import { useSnackbar } from "../context/SnackbarContext";
 import CreateTaskModal from "../components/CreateTaskModal";
 import EditTaskModal from "../components/EditTaskModal";
+import TaskDetailModal from "../components/TaskDetailModal";
 import ConfirmDialog from "../components/ConfirmDialog";
 
 function Tasks() {
@@ -18,6 +19,7 @@ function Tasks() {
   const [showModal, setShowModal] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
   const [deletingTask, setDeletingTask] = useState(null);
+  const [viewingTask, setViewingTask] = useState(null);
   const { user } = useAuth();
   const { showSnackbar } = useSnackbar();
 
@@ -78,25 +80,53 @@ function Tasks() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {tasks.map((task) => (
-              <TableRow key={task.id}>
+            {tasks.map((task) => {
+              const due = new Date(task.dueDate);
+              const today = new Date();
+              today.setHours(0, 0, 0, 0);
+              const isOverdue = due < today && task.status !== "Tamamlandı";
+              return (
+              <TableRow
+                key={task.id}
+                hover
+                onClick={() => setViewingTask(task)}
+                sx={{ cursor: "pointer" }}
+              >
                 <TableCell>{task.title}</TableCell>
                 <TableCell>{task.assignedUserName}</TableCell>
                 <TableCell>{task.priority}</TableCell>
-                <TableCell>{new Date(task.dueDate).toLocaleDateString("tr-TR")}</TableCell>
                 <TableCell>
-                  <Select
-                    value={task.status}
-                    size="small"
-                    onChange={(e) => handleStatusChange(task.id, e.target.value)}
-                  >
-                    <MenuItem value="Bekliyor">Bekliyor</MenuItem>
-                    <MenuItem value="Başladı">Başladı</MenuItem>
-                    <MenuItem value="Tamamlandı">Tamamlandı</MenuItem>
-                  </Select>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                      <Typography
+                        variant="body2"
+                        sx={{ color: isOverdue ? "#f59e0b" : "inherit", fontWeight: isOverdue ? "bold" : "normal" }}
+                      >
+                        {due.toLocaleDateString("tr-TR")}
+                      </Typography>
+                      {isOverdue && (
+                        <Typography variant="caption" sx={{ color: "#f59e0b" }}>⚠</Typography>
+                      )}
+                    </Box>
+              </TableCell>
+                <TableCell onClick={(e) => e.stopPropagation()}>
+                  {task.status === "Tamamlandı" ? (
+                    <Chip label="Tamamlandı" color="success" size="small" />
+                  ) : isOverdue ? (
+                    <Chip label="Süresi Geçmiş" size="small" sx={{ bgcolor: "#f59e0b", color: "white" }} />
+                  ) : (
+                    <Select
+                      value={task.status}
+                      size="small"
+                      onChange={(e) => handleStatusChange(task.id, e.target.value)}
+                    >
+                      <MenuItem value="Bekliyor">Bekliyor</MenuItem>
+                      <MenuItem value="Başladı">Başladı</MenuItem>
+                      <MenuItem value="Tamamlandı">Tamamlandı</MenuItem>
+                    </Select>
+                  )}
                 </TableCell>
                 {!isPersonel && (
-                  <TableCell>
+                  <TableCell onClick={(e) => e.stopPropagation()}>
                     <Box sx={{ display: "flex", gap: 1 }}>
                       <IconButton
                         size="small"
@@ -130,7 +160,8 @@ function Tasks() {
                   </TableCell>
                 )}
               </TableRow>
-            ))}
+              );
+            })}
           </TableBody>
         </Table>
         )}
@@ -154,6 +185,13 @@ function Tasks() {
             fetchTasks();
             showSnackbar("Görev başarıyla güncellendi.");
           }}
+        />
+      )}
+
+      {viewingTask && (
+        <TaskDetailModal
+          task={viewingTask}
+          onClose={() => setViewingTask(null)}
         />
       )}
 

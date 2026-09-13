@@ -1,15 +1,14 @@
-import { useState } from "react";
 import {
   Dialog, DialogTitle, DialogContent, DialogActions,
-  Button, TextField, Box, FormControlLabel, Checkbox, CircularProgress
+  Button, TextField, Box, CircularProgress
 } from "@mui/material";
 import axiosInstance from "../api/axiosInstance";
 import ConfirmDialog from "./ConfirmDialog";
+import { useState } from "react";
 
 function CreateAnnouncementModal({ onClose, onCreated }) {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [sendEmailNotification, setSendEmailNotification] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [confirmCreate, setConfirmCreate] = useState(false);
@@ -23,7 +22,6 @@ function CreateAnnouncementModal({ onClose, onCreated }) {
         title,
         content,
         isActive: true,
-        sendEmailNotification,
       });
       onCreated();
       onClose();
@@ -53,15 +51,6 @@ function CreateAnnouncementModal({ onClose, onCreated }) {
               multiline
               rows={3}
               inputProps={{ maxLength: 100 }}
-            />
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={sendEmailNotification}
-                  onChange={(e) => setSendEmailNotification(e.target.checked)}
-                />
-              }
-              label="Yayınlandığında tüm personellere otomatik e-posta bildirimi at"
             />
             {validationError && <Box sx={{ color: "error.main" }}>{validationError}</Box>}
             {error && <Box sx={{ color: "error.main" }}>{error}</Box>}

@@ -16,6 +16,8 @@ spec:
       containers:
         - name: frontend
           image: worksoft-frontend:latest
+          securityContext:
+            allowPrivilegeEscalation: false
           ports:
             - containerPort: 80
 ---

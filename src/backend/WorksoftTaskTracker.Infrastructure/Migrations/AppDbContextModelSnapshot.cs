@@ -174,6 +174,9 @@ namespace WorksoftTaskTracker.Infrastructure.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
+                    b.Property<DateTime?>("LastLoginDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("PasswordHash")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");

@@ -12,7 +12,7 @@ function EditTaskModal({ task, onClose, onUpdated }) {
   const [assignedUserId, setAssignedUserId] = useState(task.assignedUserId);
   const [priority, setPriority] = useState(task.priority);
   const [dueDate, setDueDate] = useState(task.dueDate.split("T")[0]);
-  const [description, setDescription] = useState("");
+  const [description, setDescription] = useState(task.description || "");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [confirmEdit, setConfirmEdit] = useState(false);
@@ -21,7 +21,7 @@ function EditTaskModal({ task, onClose, onUpdated }) {
     async function fetchUsers() {
       try {
         const response = await axiosInstance.get("/users");
-        setUsers(response.data.data);
+        setUsers(response.data.data.filter((u) => u.isActive || u.id === task.assignedUserId));
       } catch (err) {
         setError("Kullanıcı listesi yüklenemedi.");
       }
@@ -87,7 +87,10 @@ function EditTaskModal({ task, onClose, onUpdated }) {
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
               fullWidth
-              slotProps={{ inputLabel: { shrink: true } }}
+              slotProps={{
+                inputLabel: { shrink: true },
+                htmlInput: { min: new Date().toISOString().split("T")[0] }
+              }}
             />
             <TextField
               label="Açıklama"

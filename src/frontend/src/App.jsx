@@ -7,6 +7,7 @@ import Dashboard from "./pages/Dashboard";
 import Tasks from "./pages/Tasks";
 import Announcements from "./pages/Announcements";
 import Users from "./pages/Users";
+import ProfilePage from "./pages/ProfilePage";
 import { Navigate } from "react-router-dom";
 
 function App() {
@@ -46,6 +47,14 @@ function App() {
               element={
                 <ProtectedRoute allowedRoles={["Admin"]}>
                   <Users />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <ProfilePage />
                 </ProtectedRoute>
               }
             />

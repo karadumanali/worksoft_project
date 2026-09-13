@@ -2,9 +2,9 @@ import Sidebar from "./Sidebar";
 
 function Layout({ children }) {
   return (
-    <div style={{ display: "flex" }}>
+    <div style={{ display: "flex", height: "100vh", overflow: "hidden" }}>
       <Sidebar />
-      <div style={{ flex: 1 }}>{children}</div>
+      <div style={{ flex: 1, overflowY: "auto" }}>{children}</div>
     </div>
   );
 }

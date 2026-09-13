@@ -23,7 +23,7 @@ function CreateTaskModal({ onClose, onCreated }) {
     async function fetchUsers() {
       try {
         const response = await axiosInstance.get("/users");
-        setUsers(response.data.data);
+        setUsers(response.data.data.filter((u) => u.isActive));
       } catch (err) {
         setError("Kullanıcı listesi yüklenemedi.");
       }
@@ -90,7 +90,10 @@ function CreateTaskModal({ onClose, onCreated }) {
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
               fullWidth
-              slotProps={{ inputLabel: { shrink: true } }}
+              slotProps={{
+                inputLabel: { shrink: true },
+                htmlInput: { min: new Date().toISOString().split("T")[0] }
+              }}
             />
             <TextField
               label="Açıklama"

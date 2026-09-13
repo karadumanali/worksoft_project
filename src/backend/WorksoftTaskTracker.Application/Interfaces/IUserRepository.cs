@@ -10,4 +10,7 @@ public interface IUserRepository
     Task AddAsync(User user);
     Task UpdateAsync(User user);
     Task SaveChangesAsync();
+
+    Task UpdateLastLoginAsync(int userId);
+    Task UpdateProfileAsync(int userId, string fullName);
 }

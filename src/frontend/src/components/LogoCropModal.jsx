@@ -10,15 +10,27 @@ function getCroppedImg(imageSrc, pixelCrop, shape) {
     const image = new Image();
     image.src = imageSrc;
     image.onload = () => {
+      let width = 200;
+      let height = 200;
+
+      if (shape === "rectV") {
+        width = 300;
+        height = 400;
+      }
+
+      if (shape === "rectH") {
+        width = 400;
+        height = 300;
+      }
+
       const canvas = document.createElement("canvas");
-      const size = 200;
-      canvas.width = size;
-      canvas.height = size;
+      canvas.width = width;
+      canvas.height = height;
       const ctx = canvas.getContext("2d");
 
       if (shape === "round") {
         ctx.beginPath();
-        ctx.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2);
+        ctx.arc(width / 2, height / 2, width / 2, 0, Math.PI * 2);
         ctx.clip();
       }
 
@@ -30,8 +42,8 @@ function getCroppedImg(imageSrc, pixelCrop, shape) {
         pixelCrop.height,
         0,
         0,
-        size,
-        size
+        width,
+        height
       );
 
       resolve(canvas.toDataURL("image/png"));
@@ -55,9 +67,16 @@ function LogoCropModal({ imageSrc, onClose, onSave }) {
     onClose();
   }
 
+  const aspect =
+    shape === "rectV"
+      ? 3 / 4
+      : shape === "rectH"
+      ? 4 / 3
+      : 1;
+
   return (
     <Dialog open onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>Logoyu Kırp</DialogTitle>
+      <DialogTitle>Görseli Kırp</DialogTitle>
       <DialogContent>
         <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 1 }}>
 
@@ -67,11 +86,15 @@ function LogoCropModal({ imageSrc, onClose, onSave }) {
             <ToggleButtonGroup
               value={shape}
               exclusive
-              onChange={(_, val) => { if (val) setShape(val); }}
+              onChange={(_, val) => {
+                if (val) setShape(val);
+              }}
               size="small"
             >
               <ToggleButton value="round">Yuvarlak</ToggleButton>
               <ToggleButton value="square">Kare</ToggleButton>
+              <ToggleButton value="rectV">Dikey</ToggleButton>
+              <ToggleButton value="rectH">Yatay</ToggleButton>
             </ToggleButtonGroup>
           </Box>
 
@@ -81,7 +104,7 @@ function LogoCropModal({ imageSrc, onClose, onSave }) {
               image={imageSrc}
               crop={crop}
               zoom={zoom}
-              aspect={1}
+              aspect={aspect}
               cropShape={shape === "round" ? "round" : "rect"}
               onCropChange={setCrop}
               onZoomChange={setZoom}

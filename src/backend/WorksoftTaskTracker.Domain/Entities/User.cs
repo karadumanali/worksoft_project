@@ -10,6 +10,7 @@ public class User
     public string PasswordHash { get; set; } = string.Empty;
     public bool IsActive { get; set; }
     public DateTime CreatedDate { get; set; }
+    public DateTime? LastLoginDate { get; set; }
 
     public Role Role { get; set; } = null!;
     public ICollection<TaskItem> AssignedTasks { get; set; } = new List<TaskItem>();

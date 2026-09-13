@@ -28,6 +28,8 @@ spec:
       containers:
         - name: mssql
           image: mcr.microsoft.com/mssql/server:2022-latest
+          securityContext:
+            allowPrivilegeEscalation: false
           ports:
             - containerPort: 1433
           env:
